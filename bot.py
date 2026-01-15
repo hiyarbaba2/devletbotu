@@ -360,6 +360,36 @@ async def iptal(ctx):
     )
 
 
+@bot.command(name='cooldownkaldir')
+async def cooldownkaldir(ctx, komut: str = None):
+    """Tüm kullanıcıların cooldown'unu kaldırır (Sadece Bot rolü)"""
+    # Rol kontrolü - Sadece Bot rolü
+    if not any(str(role.id) == BOT_ROL_ID for role in ctx.author.roles):
+        await ctx.reply('❌ Bu komutu kullanmak için Bot rolüne sahip olmalısınız!')
+        return
+    
+    if not komut:
+        await ctx.reply('❌ Kullanım: `!cooldownkaldir egitimduyuru/bransalim`\nÖrnek: `!cooldownkaldir egitimduyuru`')
+        return
+    
+    # Komut kontrolü
+    if komut not in ['egitimduyuru', 'bransalim']:
+        await ctx.reply('❌ Geçersiz komut! Sadece `egitimduyuru` veya `bransalim` kullanabilirsiniz.')
+        return
+    
+    # İlgili komutu içeren tüm cooldown'ları bul ve kaldır
+    silinecek_keyler = [key for key in cooldowns.keys() if key.endswith(f'-{komut}')]
+    silinen_sayi = len(silinecek_keyler)
+    
+    for key in silinecek_keyler:
+        del cooldowns[key]
+    
+    if silinen_sayi > 0:
+        await ctx.reply(f'✅ `!{komut}` komutu için toplam {silinen_sayi} kullanıcının cooldown\'u kaldırıldı!')
+    else:
+        await ctx.reply(f'ℹ️ `!{komut}` komutu için aktif cooldown bulunamadı.')
+
+
 @bot.command(name='egitimduyuru')
 async def egitimduyuru(ctx, host: str = None, co: str = None, saat: str = None):
     """Eğitim duyurusu gönder"""
