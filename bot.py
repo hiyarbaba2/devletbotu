@@ -136,6 +136,23 @@ async def handle_bekleyen_mesaj(message):
         data = user_data['data']
         sartlar = None if message.content.lower() in ['hayır', 'yok', 'hayir'] else message.content
         
+        kanal = bot.get_channel(int(data['kanal']))
+        
+        # Önce tüm mesajları sil
+        try:
+            await message.delete()  # Kullanıcının cevabını sil
+        except Exception as e:
+            print(f'Kullanıcı mesajı silinemedi: {e}')
+        
+        try:
+            soru_mesaji_id = user_data.get('soru_mesaji_id')
+            if soru_mesaji_id:
+                soru_mesaji = await kanal.fetch_message(soru_mesaji_id)
+                await soru_mesaji.delete()  # Bot'un sorusunu sil
+        except Exception as e:
+            print(f'Soru mesajı silinemedi: {e}')
+        
+        # Mesajları sildikten SONRA duyuruyu oluştur ve gönder
         yeni_mesaj = Formatlar.bransalim(
             data['host'], 
             data['co'], 
@@ -144,9 +161,7 @@ async def handle_bekleyen_mesaj(message):
             sartlar
         )
         
-        kanal = bot.get_channel(int(data['kanal']))
         await kanal.send(yeni_mesaj)
-        await message.reply('✅ Branş alım duyurusu gönderildi!')
         
         # Cooldown'u kaydet
         cooldowns[data['cooldownKey']] = datetime.now()
@@ -457,6 +472,14 @@ async def bransalim(ctx, host: str = None, co: str = None, brans: str = None, sa
         await ctx.reply('❌ Kullanım: `!bransalim Host Co/yok Branş Saat`\nÖrnek: `!bransalim AhmetBey yok Piyade 20:00`')
         return
 
+    try:
+        await ctx.message.delete()
+    except Exception as e:
+        print(f'Mesaj silinemedi: {e}')
+
+    # Şartlar sorusunu sor ve mesaj ID'sini kaydet
+    soru_mesaji = await ctx.send(f'{ctx.author.mention} 📋 Şartlar olacak mı? Varsa şartları yazın, yoksa "hayır" veya "yok" yazın:')
+
     bekleyen_kullanicilar[ctx.author.id] = {
         'adim': 'brans_sartlar',
         'data': {
@@ -466,15 +489,9 @@ async def bransalim(ctx, host: str = None, co: str = None, brans: str = None, sa
             'saat': saat,
             'kanal': str(ctx.channel.id),
             'cooldownKey': cooldown_key
-        }
+        },
+        'soru_mesaji_id': soru_mesaji.id
     }
-
-    try:
-        await ctx.message.delete()
-    except Exception as e:
-        print(f'Mesaj silinemedi: {e}')
-
-    await ctx.reply('📋 Şartlar olacak mı? Varsa şartları yazın, yoksa "hayır" veya "yok" yazın:')
 
 
 @bot.command(name='ping')
