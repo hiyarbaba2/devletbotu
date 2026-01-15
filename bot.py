@@ -151,7 +151,7 @@ async def handle_bekleyen_mesaj(message):
         # Cooldown'u kaydet
         cooldowns[data['cooldownKey']] = datetime.now()
         
-        del bekleyen_kulanicilar[message.author.id]
+        del bekleyen_kullanicilar[message.author.id]
         return
 
 
