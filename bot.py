@@ -181,9 +181,17 @@ async def roblox_kullanici_id_al(username):
     return None
 
 async def roblox_rutbe_degistir(user_id, rank_id, group_id):
-    url = f"https://apis.roblox.com/cloud/v2/groups/{group_id}/memberships/{user_id}"
+    # ✅ DÜZELTİLDİ: Roblox Cloud API v2 doğru formatı
+    url = f"https://apis.roblox.com/cloud/v2/groups/{group_id}/memberships/{user_id}:update"
     headers = {"x-api-key": ROBLOX_API_KEY_GROUPS, "Content-Type": "application/json"}
-    payload = {"role": rank_id}
+    
+    # ✅ DÜZELTİLDİ: Doğru payload formatı (roleId ve path)
+    payload = {
+        "membership": {
+            "path": f"groups/{group_id}/memberships/{user_id}",
+            "roleId": str(rank_id)  # roleId string olmalı
+        }
+    }
     
     async with aiohttp.ClientSession() as session:
         async with session.patch(url, headers=headers, json=payload) as response:
