@@ -3,12 +3,8 @@
 ROBLOX AKTİFLİK TAKİP & YÖNETİM + DUYURU DISCORD BOTU
 PART 1/4: YAPILANDIRMA, VERİTABANI & YARDIMCI FONKSİYONLAR
 ════════════════════════════════════════════════════════════════
-Bu dosya:
-    - Kütüphaneler ve import'lar
-    - Bot yapılandırması
-    - Veritabanı yönetimi
-    - Yardımcı fonksiyonlar
-    - Roblox API fonksiyonları
+✅ Subay kontrolü sadece Grup 6702531, Rank 10+
+✅ Karaliste ve tasfiye tüm gruplarda çalışır
 ════════════════════════════════════════════════════════════════
 """
 
@@ -71,93 +67,48 @@ EGITIM_KANAL_ID = '1127312264718995629'
 BRANS_KANAL_ID = '1128667321351815218'
 
 # Roblox API Ayarları
-# İKİ AYRI API KEY KULLANIYORUZ:
-# 1. Grup işlemleri için (rütbe değiştirme, gruptan atma) - Grup sahibinin API keyi
 ROBLOX_API_KEY_GROUPS = os.getenv('ROBLOX_API_KEY_GROUPS', 'YOUR_GROUP_API_KEY')
-# 2. DataStore işlemleri için (aktiflik okuma) - Developer'ın API keyi
 ROBLOX_API_KEY_DATASTORE = os.getenv('ROBLOX_API_KEY_DATASTORE', 'YOUR_DATASTORE_API_KEY')
-# Oyun Universe ID (Developer'dan alınacak)
 UNIVERSE_ID = os.getenv('UNIVERSE_ID', 'YOUR_UNIVERSE_ID')
 
 ROBLOX_GRUP_LISTESI = [
-    5836656,  # Ana grup ID
-    35855814,  # İkinci grup ID
-    35856866,  # İkinci grup ID
-    17163069,  # İkinci grup ID
-    6702531,  # İkinci grup ID
-    34055753,  # İkinci grup ID
-    32774293,  # İkinci grup ID
-    15222875,  # İkinci grup ID
-    7426468,  # İkinci grup ID
-    14014034,  # İkinci grup ID
-    33709489,  # İkinci grup ID
-    15872878,  # İkinci grup ID
-    17163024,  # İkinci grup ID
-    32753497,  # İkinci grup ID
-    17167854,  # İkinci grup ID
-    17264057,  # İkinci grup ID
+    5836656, 35855814, 35856866, 17163069, 6702531,
+    34055753, 32774293, 15222875, 7426468, 14014034,
+    33709489, 15872878, 17163024, 32753497, 17167854, 17264057
 ]
+
+# ✅ YENİ: Subay Kontrolü İçin Özel Grup Ayarları
+SUBAY_KONTROL_GRUP_ID = 6702531  # Sadece bu grupta subay kontrolü yapılacak
+SUBAY_MIN_RANK = 10  # Mülazım-ı Sani ve üstü (rank 10+)
 
 # Rütbe Listesi
 RUTBE_LISTESI = {
-    "Acemi": 2,
-    "Nefer": 3,
-    "Nefer Birinci Sınıf": 4,
-    "Onbaşı": 5,
-    "Çavuş": 6,
-    "Nefer Birinci Sınıf": 4,
-    "Üstçavuş": 7,
-    "Başçavuş": 9,
-    "Mülazım-ı Sani": 10,
-    "Mülazım-ı Evvel": 11,
-    "Yüzbaşı": 12,
-    "Kolağası": 13,
-    "Binbaşı": 14,
-    "Kaymakam": 15,
-    "Miralay": 16,
-    "Mirliva": 17,
-    "Ferik": 18,
-    "Ağa": 20,
-    "Müşir": 21,
-    "Serasker": 22,
-    "Vezir-i Salis": 23,
-    "Vezir-i Sani": 25,
-    "Vezir-i Azam": 55,
-    "Şehzade": 60,
-    "Veliaht Şehzade": 65,
-    "Padişah": 100,
-    "Holder": 255
+    "Acemi": 2, "Nefer": 3, "Nefer Birinci Sınıf": 4,
+    "Onbaşı": 5, "Çavuş": 6, "Üstçavuş": 7, "Başçavuş": 9,
+    "Mülazım-ı Sani": 10, "Mülazım-ı Evvel": 11, "Yüzbaşı": 12,
+    "Kolağası": 13, "Binbaşı": 14, "Kaymakam": 15, "Miralay": 16,
+    "Mirliva": 17, "Ferik": 18, "Ağa": 20, "Müşir": 21,
+    "Serasker": 22, "Vezir-i Salis": 23, "Vezir-i Sani": 25,
+    "Vezir-i Azam": 55, "Şehzade": 60, "Veliaht Şehzade": 65,
+    "Padişah": 100, "Holder": 255
 }
 
-# Subay Rütbeleri (aktiflik takibi için)
 SUBAY_RUTBELERI = [
     "Mülazım-ı Sani", "Mülazım-ı Evvel", "Yüzbaşı", "Binbaşı",
-    "Kaymakam", "Miralay", "Mirliva", "Ferik",
-    "Ağa", "Müşir", "Serasker"
+    "Kaymakam", "Miralay", "Mirliva", "Ferik", "Ağa", "Müşir", "Serasker"
 ]
 
-# Log Kanalı
-LOG_CHANNEL_ID = None  # Örnek: 1234567890
+LOG_CHANNEL_ID = 1461362885337813004
 
 # ═══════════════════════════════════════════════════════════════
-# GLOBAL DEĞİŞKENLER (Duyuru sistemi için)
+# GLOBAL DEĞİŞKENLER
 # ═══════════════════════════════════════════════════════════════
 
-# Aktif mesaj bekleme durumları
 bekleyen_kullanicilar = {}
-
-# Cooldown sistemi
 cooldowns = {}
-
-# Savaş duyurusu kontrol sistemi
 savas_durumu = {
-    'aktif': False,
-    'duraklatildi': False,
-    'basarili': 0,
-    'basarisiz': 0,
-    'toplam': 0,
-    'simdiki': 0,
-    'kanal': None
+    'aktif': False, 'duraklatildi': False, 'basarili': 0,
+    'basarisiz': 0, 'toplam': 0, 'simdiki': 0, 'kanal': None
 }
 
 # ═══════════════════════════════════════════════════════════════
@@ -168,37 +119,26 @@ DATABASE_FILE = 'aktiflik_veritabani.json'
 KARALISTE_FILE = 'karaliste.json'
 
 def veritabani_yukle():
-    """Aktiflik veritabanını yükle"""
     if os.path.exists(DATABASE_FILE):
         with open(DATABASE_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
-    return {
-        "players": [],
-        "settings": {
-            "minimum_hours": 5,
-            "week_start_day": "monday"
-        }
-    }
+    return {"players": [], "settings": {"minimum_hours": 5, "week_start_day": "monday"}}
 
 def veritabani_kaydet(data):
-    """Aktiflik veritabanını kaydet"""
     with open(DATABASE_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
 def karaliste_yukle():
-    """Karaliste veritabanını yükle"""
     if os.path.exists(KARALISTE_FILE):
         with open(KARALISTE_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
     return {"blacklisted_users": []}
 
 def karaliste_kaydet(data):
-    """Karaliste veritabanını kaydet"""
     with open(KARALISTE_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
 def oyuncu_bul(roblox_username):
-    """Oyuncuyu veritabanında bul"""
     db = veritabani_yukle()
     for i, player in enumerate(db['players']):
         if player['roblox_username'].lower() == roblox_username.lower():
@@ -210,18 +150,15 @@ def oyuncu_bul(roblox_username):
 # ═══════════════════════════════════════════════════════════════
 
 def yetki_kontrol(ctx):
-    """Kullanıcının yetki kontrolü"""
     kullanici_rol_ids = [role.id for role in ctx.author.roles]
     return any(rol_id in YETKILI_ROL_IDS for rol_id in kullanici_rol_ids)
 
 def saniye_saat_donustur(saniye):
-    """Saniyeyi saat ve dakikaya çevir"""
     saat = saniye // 3600
     dakika = (saniye % 3600) // 60
     return f"{saat}s {dakika}d"
 
 def renk_bul(toplam_saat):
-    """Aktiflik saatine göre renk emoji döndür"""
     if toplam_saat >= 7:
         return "🟢"
     elif toplam_saat >= 5:
@@ -234,7 +171,6 @@ def renk_bul(toplam_saat):
 # ═══════════════════════════════════════════════════════════════
 
 async def roblox_kullanici_id_al(username):
-    """Roblox kullanıcı adından ID al"""
     url = "https://users.roblox.com/v1/usernames/users"
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json={"usernames": [username]}) as response:
@@ -245,12 +181,8 @@ async def roblox_kullanici_id_al(username):
     return None
 
 async def roblox_rutbe_degistir(user_id, rank_id, group_id):
-    """Roblox'ta kullanıcının rütbesini değiştir"""
     url = f"https://apis.roblox.com/cloud/v2/groups/{group_id}/memberships/{user_id}"
-    headers = {
-        "x-api-key": ROBLOX_API_KEY_GROUPS,  # Grup işlemleri için API key
-        "Content-Type": "application/json"
-    }
+    headers = {"x-api-key": ROBLOX_API_KEY_GROUPS, "Content-Type": "application/json"}
     payload = {"role": rank_id}
     
     async with aiohttp.ClientSession() as session:
@@ -262,7 +194,6 @@ async def roblox_rutbe_degistir(user_id, rank_id, group_id):
                 return False, f"Hata: {error_text}"
 
 async def roblox_mevcut_rutbe_al(user_id):
-    """Kullanıcının mevcut rütbesini al"""
     url = f"https://groups.roblox.com/v1/users/{user_id}/groups/roles"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
@@ -274,85 +205,44 @@ async def roblox_mevcut_rutbe_al(user_id):
     return "Bilinmiyor"
 
 async def roblox_gruptan_cikar(user_id, group_id):
-    """Kullanıcıyı Roblox grubundan çıkar"""
     url = f"https://apis.roblox.com/cloud/v2/groups/{group_id}/memberships/{user_id}"
-    headers = {"x-api-key": ROBLOX_API_KEY_GROUPS}  # Grup işlemleri için API key
+    headers = {"x-api-key": ROBLOX_API_KEY_GROUPS}
     
     async with aiohttp.ClientSession() as session:
         async with session.delete(url, headers=headers) as response:
             return response.status == 200
 
 async def roblox_haftalik_aktiflik_al(user_id):
-    """
-    Kullanıcının haftalık aktiflik süresini DataStore'dan al
-    
-    Args:
-        user_id: Roblox kullanıcı ID'si
-        
-    Returns:
-        tuple: (success: bool, seconds: int or error_message: str)
-    """
     datastore_name = "PlayerSessions_v2"
     entry_key = str(user_id)
-    
     url = f"https://apis.roblox.com/datastores/v1/universes/{UNIVERSE_ID}/standard-datastores/datastore/entries/entry"
-    
-    headers = {
-        "x-api-key": ROBLOX_API_KEY_DATASTORE,  # DataStore işlemleri için API key
-    }
-    
-    params = {
-        "datastoreName": datastore_name,
-        "entryKey": entry_key
-    }
+    headers = {"x-api-key": ROBLOX_API_KEY_DATASTORE}
+    params = {"datastoreName": datastore_name, "entryKey": entry_key}
     
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers, params=params) as response:
                 if response.status == 200:
                     data = await response.json()
-                    
-                    # DataStore'dan gelen veri JSON formatında
                     if isinstance(data, dict):
                         weekly_seconds = data.get('weeklySeconds', 0)
                         return True, weekly_seconds
                     else:
                         return False, "Veri formatı hatalı"
-                        
                 elif response.status == 404:
-                    # Kullanıcı henüz oyuna girmemiş
                     return True, 0
-                    
                 else:
                     error_text = await response.text()
                     return False, f"API Hatası ({response.status}): {error_text}"
-                    
     except Exception as e:
         return False, f"Bağlantı hatası: {str(e)}"
 
 async def roblox_toplam_aktiflik_al(user_id):
-    """
-    Kullanıcının toplam aktiflik süresini DataStore'dan al
-    
-    Args:
-        user_id: Roblox kullanıcı ID'si
-        
-    Returns:
-        tuple: (success: bool, seconds: int or error_message: str)
-    """
     datastore_name = "PlayerPlayTime_v2"
     entry_key = str(user_id)
-    
     url = f"https://apis.roblox.com/datastores/v1/universes/{UNIVERSE_ID}/standard-datastores/datastore/entries/entry"
-    
-    headers = {
-        "x-api-key": ROBLOX_API_KEY_DATASTORE,  # DataStore işlemleri için API key
-    }
-    
-    params = {
-        "datastoreName": datastore_name,
-        "entryKey": entry_key
-    }
+    headers = {"x-api-key": ROBLOX_API_KEY_DATASTORE}
+    params = {"datastoreName": datastore_name, "entryKey": entry_key}
     
     try:
         async with aiohttp.ClientSession() as session:
@@ -360,43 +250,52 @@ async def roblox_toplam_aktiflik_al(user_id):
                 if response.status == 200:
                     total_seconds = await response.json()
                     return True, int(total_seconds)
-                    
                 elif response.status == 404:
-                    # Kullanıcı henüz oyuna girmemiş
                     return True, 0
-                    
                 else:
                     error_text = await response.text()
                     return False, f"API Hatası ({response.status}): {error_text}"
-                    
     except Exception as e:
         return False, f"Bağlantı hatası: {str(e)}"
 
 async def roblox_toplu_aktiflik_al(user_ids):
-    """
-    Birden fazla kullanıcının haftalık aktifliklerini toplu olarak al
-    
-    Args:
-        user_ids: List of Roblox user IDs
-        
-    Returns:
-        dict: {user_id: weekly_seconds}
-    """
     results = {}
-    
     for user_id in user_ids:
         success, data = await roblox_haftalik_aktiflik_al(user_id)
-        
         if success:
             results[user_id] = data
         else:
             results[user_id] = 0
             print(f"⚠️ Aktiflik alınamadı (UserID: {user_id}): {data}")
-        
-        # Rate limit için kısa bekleme
         await asyncio.sleep(0.1)
-    
     return results
+
+# ✅ YENİ FONKSİYON: Subay Kontrolü
+async def subay_mi_kontrol(user_id):
+    url = f"https://groups.roblox.com/v1/users/{user_id}/groups/roles"
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    
+                    for group in data.get('data', []):
+                        if group['group']['id'] == SUBAY_KONTROL_GRUP_ID:
+                            rank = group['role']['rank']
+                            rank_name = group['role']['name']
+                            
+                            if rank >= SUBAY_MIN_RANK:
+                                return True, rank, rank_name
+                            else:
+                                return False, rank, rank_name
+                    
+                    return False, 0, "Grupta Değil"
+    except Exception as e:
+        print(f"Subay kontrolü hatası (UserID: {user_id}): {e}")
+        return False, 0, "Hata"
+    
+    return False, 0, "Bilinmiyor"
 
 # ═══════════════════════════════════════════════════════════════
 # DUYURU MESAJ FORMATLARI
@@ -405,7 +304,6 @@ async def roblox_toplu_aktiflik_al(user_ids):
 class Formatlar:
     @staticmethod
     def egitimduyuru(host, co, saat):
-        """Eğitim duyurusu formatı"""
         co_text = 'Yok' if co.lower() == 'yok' else co
         return f"""📚 **EĞİTİM DUYURUSU**
 
@@ -420,7 +318,6 @@ https://www.roblox.com/games/11734871771/YEN-Osmanl-Asker-Oyun"""
 
     @staticmethod
     def bransalim(host, co, brans, saat, sartlar=None):
-        """Branş alım duyurusu formatı"""
         co_text = '-' if co.lower() == 'yok' else co
         mesaj = f"""🎯 **BRANŞ ALIM DUYURUSU**
 
@@ -431,15 +328,12 @@ https://www.roblox.com/games/11734871771/YEN-Osmanl-Asker-Oyun"""
 **Tag:** <@&1254785306343772271>
 
 https://www.roblox.com/games/11734871771/YEN-Ottoman-Army-Simulator"""
-
         if sartlar:
             mesaj += f"\n\n**Şartlar:**\n{sartlar}"
-        
         return mesaj
 
     @staticmethod
     def savas_dm():
-        """Savaş DM mesaj formatı"""
         return """@everyone
 # Savaş başlıyor Oyuna giriş yap! / Battle is starting now join up!
 https://discord.com/channels/1127292848044245133/1200486502870814810
@@ -450,29 +344,23 @@ https://www.roblox.com/games/11734871771/YEN-Osmanl-Asker-Oyunu"""
 # ═══════════════════════════════════════════════════════════════
 
 async def handle_bekleyen_mesaj(message):
-    """Bekleyen kullanıcıların mesajlarını işle"""
     user_data = bekleyen_kullanicilar.get(message.author.id)
     if not user_data:
         return
 
     adim = user_data['adim']
 
-    # !duyuru komutu için kanal seçimi
     if adim == 'kanal':
         kanal_id = message.content.strip()
         try:
             kanal = await bot.fetch_channel(int(kanal_id))
-            bekleyen_kullanicilar[message.author.id] = {
-                'adim': 'mesaj',
-                'kanal': kanal
-            }
+            bekleyen_kullanicilar[message.author.id] = {'adim': 'mesaj', 'kanal': kanal}
             await message.reply(f'✅ Kanal seçildi: {kanal.mention}\n📝 Şimdi göndermek istediğiniz mesajı yazın:')
         except Exception as e:
             await message.reply('❌ Geçersiz kanal ID! Lütfen tekrar deneyin:')
             print(f"Kanal fetch hatası: {e}")
         return
 
-    # !duyuru komutu için mesaj gönderme
     if adim == 'mesaj':
         kanal = user_data['kanal']
         try:
@@ -483,14 +371,11 @@ async def handle_bekleyen_mesaj(message):
         del bekleyen_kullanicilar[message.author.id]
         return
 
-    # !bransalim komutu için şartlar
     if adim == 'brans_sartlar':
         data = user_data['data']
         sartlar = None if message.content.lower() in ['hayır', 'yok', 'hayir'] else message.content
-        
         kanal = bot.get_channel(int(data['kanal']))
         
-        # Önce tüm mesajları sil
         try:
             await message.delete()
         except Exception as e:
@@ -504,20 +389,9 @@ async def handle_bekleyen_mesaj(message):
         except Exception as e:
             print(f'Soru mesajı silinemedi: {e}')
         
-        # Duyuruyu oluştur ve gönder
-        yeni_mesaj = Formatlar.bransalim(
-            data['host'], 
-            data['co'], 
-            data['brans'], 
-            data['saat'], 
-            sartlar
-        )
-        
+        yeni_mesaj = Formatlar.bransalim(data['host'], data['co'], data['brans'], data['saat'], sartlar)
         await kanal.send(yeni_mesaj)
-        
-        # Cooldown'u kaydet
         cooldowns[data['cooldownKey']] = datetime.now()
-        
         del bekleyen_kullanicilar[message.author.id]
         return
 
@@ -527,7 +401,6 @@ async def handle_bekleyen_mesaj(message):
 
 @bot.event
 async def on_ready():
-    """Bot hazır olduğunda"""
     print('═' * 80)
     print('✅ ROBLOX AKTİFLİK TAKİP & YÖNETİM + DUYURU BOTU BAŞLATILDI')
     print('═' * 80)
@@ -541,46 +414,28 @@ async def on_ready():
     print(f'Kayıtlı Oyuncu: {len(db.get("players", []))}')
     print(f'Karalistedekiler: {len(karaliste_db.get("blacklisted_users", []))}')
     print('─' * 80)
-    print('AKTIF KOMUTLAR:')
-    print('  📊 AKTİFLİK: !komutlar, !logs, !inaktiflikizin, !izinkaldır')
-    print('  ⭐ RÜTBE: !tasfiye, !rutbeler')
-    print('  🚫 KARALİSTE: !karaliste, !karalistesorgula')
-    print('  📢 DUYURU: !egitimduyuru, !bransalim, !duyuru')
-    print('  ⚔️ SAVAŞ: !savas, !durum, !dur, !devam, !iptal')
-    print('  🔧 DİĞER: !cooldownkaldir, !ping')
+    print(f'✅ Subay Kontrolü: Grup {SUBAY_KONTROL_GRUP_ID}, Rank {SUBAY_MIN_RANK}+')
     print('═' * 80)
 
 @bot.event
 async def on_message(message):
-    """Her mesajda çalışır"""
     if message.author.bot:
         return
-
-    # Bekleyen kullanıcı kontrolü
     if message.author.id in bekleyen_kullanicilar:
         await handle_bekleyen_mesaj(message)
         return
-
     await bot.process_commands(message)
 
 # ════════════════════════════════════════════════════════════════
-# PART 1 SONU - PART 2'ye devam edecek...
+# PART 1 SONU
 # ════════════════════════════════════════════════════════════════
 """
 ════════════════════════════════════════════════════════════════
-ROBLOX AKTİFLİK TAKİP & YÖNETİM + DUYURU DISCORD BOTU
-PART 2/4: AKTİFLİK TAKİP KOMUTLARI
+PART 2/4: AKTİFLİK KOMUTLARI
 ════════════════════════════════════════════════════════════════
-Bu dosya:
-    - !komutlar - Komut listesi
-    - !logs - Aktiflik sorgulama
-    - !inaktiflikizin - İzin verme
-    - !izinkaldır - İzni kaldırma
+Bu dosyayı Part 1'in sonuna ekleyin
 ════════════════════════════════════════════════════════════════
 """
-
-# NOT: Bu dosya Part 1'in devamıdır. 
-# Çalıştırmak için tüm partları birleştirmeniz gerekir.
 
 # ═══════════════════════════════════════════════════════════════
 # KOMUTLAR - AKTİFLİK SORGULAMA
@@ -607,7 +462,9 @@ async def komutlar_listesi(ctx):
         name="📊 Aktiflik Sorgulama",
         value=(
             "**`!logs all`** - Tüm subayların haftalık aktiflik listesi\n"
-            "**`!logs <roblox_isim>`** - Belirli oyuncunun detaylı raporu"
+            "**`!logs <roblox_isim>`** - Belirli oyuncunun detaylı raporu\n"
+            "**`!aktiflik-sorgula <roblox_isim>`** - API'den direkt sorgula\n"
+            "**`!haftalik-rapor`** - Detaylı haftalık rapor"
         ),
         inline=False
     )
@@ -640,7 +497,7 @@ async def komutlar_listesi(ctx):
     )
     
     embed.add_field(
-        name="📢 Duyuru Komutları (Subay Rolü)",
+        name="📢 Duyuru Komutları",
         value=(
             "**`!egitimduyuru <host> <co/yok> <saat>`** - Eğitim duyurusu\n"
             "**`!bransalim <host> <co/yok> <branş> <saat>`** - Branş alım\n"
@@ -650,7 +507,7 @@ async def komutlar_listesi(ctx):
     )
     
     embed.add_field(
-        name="⚔️ Savaş Sistemi (Bot Rolü)",
+        name="⚔️ Savaş Sistemi",
         value=(
             "**`!savas`** - Aktif üyelere savaş duyurusu\n"
             "**`!durum`** - Savaş durumunu göster\n"
@@ -662,16 +519,22 @@ async def komutlar_listesi(ctx):
     )
     
     embed.add_field(
-        name="🔧 Diğer Komutlar",
+        name="🔧 Diğer",
         value=(
-            "**`!cooldownkaldir <komut>`** - Cooldown kaldır (Bot Rolü)\n"
-            "**`!ping`** - Bot gecikmesini göster"
+            "**`!cooldownkaldir <komut>`** - Cooldown kaldır\n"
+            "**`!ping`** - Bot gecikmesini göster\n"
+            "**`!api-test`** - API bağlantısını test et"
         ),
         inline=False
     )
     
-    embed.set_footer(text=f"Sorguyu yapan: {ctx.author.name}")
+    embed.add_field(
+        name="ℹ️ Önemli Bilgi",
+        value=f"Subay kontrolü: **Grup {SUBAY_KONTROL_GRUP_ID}, Rank {SUBAY_MIN_RANK}+**",
+        inline=False
+    )
     
+    embed.set_footer(text=f"Sorguyu yapan: {ctx.author.name}")
     await ctx.send(embed=embed)
 
 
@@ -692,39 +555,63 @@ async def logs(ctx, *, hedef: str = None):
     
     db = veritabani_yukle()
     
-    # ALL - Tüm subayları listele
     if hedef.lower() == 'all':
-        subaylar = [p for p in db['players'] if p.get('rank') in SUBAY_RUTBELERI]
+        await ctx.reply('🔍 Subaylar taranıyor... (Bu biraz zaman alabilir)')
+        
+        subaylar = []
+        
+        for player in db.get('players', []):
+            roblox_id = player.get('roblox_id')
+            roblox_username = player.get('roblox_username')
+            
+            if not roblox_id or not roblox_username:
+                continue
+            
+            is_officer, rank, rank_name = await subay_mi_kontrol(roblox_id)
+            
+            if is_officer:
+                weekly_data = player.get('weekly_data', {})
+                total_seconds = weekly_data.get('total_seconds', 0)
+                on_leave = weekly_data.get('on_leave', False)
+                
+                subaylar.append({
+                    'roblox_username': roblox_username,
+                    'rank': rank,
+                    'rank_name': rank_name,
+                    'total_seconds': total_seconds,
+                    'on_leave': on_leave
+                })
+            
+            await asyncio.sleep(0.1)
         
         if not subaylar:
             await ctx.send("❌ Kayıtlı subay bulunamadı!")
             return
         
-        # Saatlere göre sırala (en düşükten en yükseğe)
-        subaylar.sort(key=lambda x: x.get('weekly_data', {}).get('total_seconds', 0))
+        subaylar.sort(key=lambda x: x['total_seconds'])
         
         embed = discord.Embed(
             title="📊 HAFTALIK AKTİFLİK RAPORU",
-            description=f"Toplam {len(subaylar)} subay",
+            description=f"Toplam {len(subaylar)} subay (Grup: {SUBAY_KONTROL_GRUP_ID}, Rank {SUBAY_MIN_RANK}+)",
             color=discord.Color.blue(),
             timestamp=datetime.now()
         )
         
         rapor_metni = ""
         for player in subaylar:
-            toplam_saniye = player.get('weekly_data', {}).get('total_seconds', 0)
+            toplam_saniye = player['total_seconds']
             toplam_saat = toplam_saniye / 3600
-            izinli = player.get('weekly_data', {}).get('on_leave', False)
+            izinli = player['on_leave']
             
             renk_emoji = renk_bul(toplam_saat)
             izin_emoji = " 🏖️" if izinli else ""
             
             rapor_metni += (
-                f"{renk_emoji} **{player['roblox_username']}** - "
+                f"{renk_emoji} **{player['roblox_username']}** "
+                f"({player['rank_name']}) - "
                 f"{saniye_saat_donustur(toplam_saniye)}{izin_emoji}\n"
             )
         
-        # Mesaj 1024 karakterden uzunsa böl
         if len(rapor_metni) > 1024:
             parts = [rapor_metni[i:i+1024] for i in range(0, len(rapor_metni), 1024)]
             for i, part in enumerate(parts):
@@ -738,16 +625,18 @@ async def logs(ctx, *, hedef: str = None):
         
         embed.add_field(
             name="📌 Açıklama",
-            value="🟢 Yeterli (7+ saat) | 🟡 Sınırda (5-7 saat) | 🔴 Yetersiz (<5 saat)",
+            value=(
+                "🟢 Yeterli (7+ saat) | 🟡 Sınırda (5-7 saat) | 🔴 Yetersiz (<5 saat)\n"
+                f"ℹ️ Sadece **Grup {SUBAY_KONTROL_GRUP_ID}** - **Rank {SUBAY_MIN_RANK}+** gösteriliyor"
+            ),
             inline=False
         )
         
         embed.set_footer(text=f"Sorguyu yapan: {ctx.author.name}")
-        
         await ctx.send(embed=embed)
         return
     
-    # TEK OYUNCU - Detaylı rapor
+    # TEK OYUNCU
     player, index = oyuncu_bul(hedef)
     
     if not player:
@@ -797,10 +686,9 @@ async def logs(ctx, *, hedef: str = None):
         inline=False
     )
     
-    # Son oturumları göster
     oturumlar = player.get('weekly_data', {}).get('sessions', [])
     if oturumlar:
-        son_oturumlar = oturumlar[-5:]  # Son 5 oturum
+        son_oturumlar = oturumlar[-5:]
         oturum_metni = ""
         
         for oturum in son_oturumlar:
@@ -821,7 +709,6 @@ async def logs(ctx, *, hedef: str = None):
         )
     
     embed.set_footer(text=f"Sorguyu yapan: {ctx.author.name}")
-    
     await ctx.send(embed=embed)
 
 
@@ -842,12 +729,10 @@ async def inaktiflik_izin(ctx, *, roblox_username: str = None):
         await ctx.send(f"❌ `{roblox_username}` adlı oyuncu bulunamadı!")
         return
     
-    # Zaten izinli mi?
     if player.get('weekly_data', {}).get('on_leave', False):
         await ctx.send(f"⚠️ **{roblox_username}** zaten izinli durumda!")
         return
     
-    # İzin ver
     db = veritabani_yukle()
     if 'weekly_data' not in db['players'][index]:
         db['players'][index]['weekly_data'] = {
@@ -873,7 +758,6 @@ async def inaktiflik_izin(ctx, *, roblox_username: str = None):
     )
     
     embed.set_footer(text=f"İşlemi yapan: {ctx.author.name}")
-    
     await ctx.send(embed=embed)
 
 
@@ -894,12 +778,10 @@ async def izin_kaldir(ctx, *, roblox_username: str = None):
         await ctx.send(f"❌ `{roblox_username}` adlı oyuncu bulunamadı!")
         return
     
-    # İzinli değilse
     if not player.get('weekly_data', {}).get('on_leave', False):
         await ctx.send(f"⚠️ **{roblox_username}** zaten izinli değil!")
         return
     
-    # İzni kaldır
     db = veritabani_yukle()
     db['players'][index]['weekly_data']['on_leave'] = False
     veritabani_kaydet(db)
@@ -918,29 +800,18 @@ async def izin_kaldir(ctx, *, roblox_username: str = None):
     )
     
     embed.set_footer(text=f"İşlemi yapan: {ctx.author.name}")
-    
     await ctx.send(embed=embed)
 
 # ════════════════════════════════════════════════════════════════
-# PART 2 SONU - PART 3'e devam edecek...
+# PART 2 SONU
 # ════════════════════════════════════════════════════════════════
 """
 ════════════════════════════════════════════════════════════════
-ROBLOX AKTİFLİK TAKİP & YÖNETİM + DUYURU DISCORD BOTU
 PART 3/4: RÜTBE, KARALİSTE & DUYURU KOMUTLARI
 ════════════════════════════════════════════════════════════════
-Bu dosya:
-    - !tasfiye - Rütbe değiştirme
-    - !rutbeler - Rütbe listesi
-    - !karaliste - Karalisteye alma
-    - !karalistesorgula - Karaliste sorgulama
-    - !egitimduyuru - Eğitim duyurusu
-    - !bransalim - Branş alım duyurusu
-    - !duyuru - Özel kanal mesajı
+Bu dosyayı Part 2'nin sonuna ekleyin
 ════════════════════════════════════════════════════════════════
 """
-
-# NOT: Bu dosya Part 1 ve Part 2'nin devamıdır.
 
 # ═══════════════════════════════════════════════════════════════
 # KOMUTLAR - RÜTBE YÖNETİMİ
@@ -948,7 +819,7 @@ Bu dosya:
 
 @bot.command(name='tasfiye')
 async def tasfiye(ctx, roblox_username: str = None, *, yeni_rutbe: str = None):
-    """Oyuncunun rütbesini değiştir"""
+    """Oyuncunun rütbesini değiştir (TÜM GRUPLARDA)"""
     if not yetki_kontrol(ctx):
         await ctx.send("❌ Bu komutu kullanma yetkiniz yok!")
         return
@@ -960,11 +831,8 @@ async def tasfiye(ctx, roblox_username: str = None, *, yeni_rutbe: str = None):
         )
         return
     
-    # Rütbe kontrolü
     if yeni_rutbe not in RUTBE_LISTESI:
-        await ctx.send(
-            f"❌ Geçersiz rütbe! Kullanılabilir rütbeleri görmek için `!rutbeler` yazın."
-        )
+        await ctx.send(f"❌ Geçersiz rütbe! Kullanılabilir rütbeleri görmek için `!rutbeler` yazın.")
         return
     
     player, index = oyuncu_bul(roblox_username)
@@ -973,20 +841,15 @@ async def tasfiye(ctx, roblox_username: str = None, *, yeni_rutbe: str = None):
         await ctx.send(f"❌ `{roblox_username}` adlı oyuncu bulunamadı!")
         return
     
-    # Roblox User ID al
     roblox_user_id = await roblox_kullanici_id_al(roblox_username)
     
     if not roblox_user_id:
         await ctx.send(f"❌ `{roblox_username}` için Roblox ID bulunamadı!")
         return
     
-    # Mevcut rütbeyi al
     eski_rutbe = await roblox_mevcut_rutbe_al(roblox_user_id)
-    
-    # İşlem mesajı
     islem_mesaji = await ctx.send(f"⏳ `{roblox_username}` için tasfiye işlemi başlatıldı...")
     
-    # Rütbe değiştir (ilk gruptan dene)
     basarili = False
     mesaj = ""
     
@@ -1000,7 +863,6 @@ async def tasfiye(ctx, roblox_username: str = None, *, yeni_rutbe: str = None):
         await islem_mesaji.edit(content=f"❌ Roblox'ta rütbe değiştirilemedi!\n{mesaj}")
         return
     
-    # Veritabanını güncelle
     db = veritabani_yukle()
     db['players'][index]['rank'] = yeni_rutbe
     veritabani_kaydet(db)
@@ -1054,7 +916,7 @@ async def rutbeler_listesi(ctx):
 
 @bot.command(name='karaliste')
 async def karaliste_komut(ctx, discord_kullanici: discord.Member = None, roblox_username: str = None, *, sebep: str = None):
-    """Kullanıcıyı karalisteye al"""
+    """Kullanıcıyı karalisteye al (TÜM GRUPLARDA)"""
     if not yetki_kontrol(ctx):
         await ctx.send("❌ Bu komutu kullanma yetkiniz yok!")
         return
@@ -1066,7 +928,6 @@ async def karaliste_komut(ctx, discord_kullanici: discord.Member = None, roblox_
         )
         return
     
-    # Onay embed'i
     onay_embed = discord.Embed(
         title="⚠️ KARALİSTE ONAY GEREKLİ",
         description=(
@@ -1096,7 +957,6 @@ async def karaliste_komut(ctx, discord_kullanici: discord.Member = None, roblox_
             ))
             await onay_mesaji.clear_reactions()
             return
-            
     except:
         await onay_mesaji.edit(embed=discord.Embed(
             title="⏱️ Zaman Aşımı",
@@ -1109,7 +969,6 @@ async def karaliste_komut(ctx, discord_kullanici: discord.Member = None, roblox_
     await onay_mesaji.clear_reactions()
     await onay_mesaji.edit(content="⏳ Karaliste işlemi başlatıldı...")
     
-    # Discord banları
     banlanan_sunucu_sayisi = 0
     for guild in bot.guilds:
         try:
@@ -1122,7 +981,6 @@ async def karaliste_komut(ctx, discord_kullanici: discord.Member = None, roblox_
         except:
             pass
     
-    # Roblox'tan çıkarma
     roblox_user_id = await roblox_kullanici_id_al(roblox_username)
     
     cikarilan_grup_sayisi = 0
@@ -1131,7 +989,6 @@ async def karaliste_komut(ctx, discord_kullanici: discord.Member = None, roblox_
             if await roblox_gruptan_cikar(roblox_user_id, group_id):
                 cikarilan_grup_sayisi += 1
     
-    # Karaliste veritabanına kaydet
     karaliste_db = karaliste_yukle()
     karaliste_kayit = {
         "discord_id": str(discord_kullanici.id),
@@ -1147,7 +1004,6 @@ async def karaliste_komut(ctx, discord_kullanici: discord.Member = None, roblox_
     karaliste_db["blacklisted_users"].append(karaliste_kayit)
     karaliste_kaydet(karaliste_db)
     
-    # Sonuç embed'i
     sonuc_embed = discord.Embed(
         title="✅ KARALİSTE İŞLEMİ TAMAMLANDI",
         description=f"**{discord_kullanici}** karalisteye alındı.",
@@ -1165,7 +1021,6 @@ async def karaliste_komut(ctx, discord_kullanici: discord.Member = None, roblox_
     )
     
     sonuc_embed.set_footer(text=f"İşlemi yapan: {ctx.author.name}")
-    
     await onay_mesaji.edit(content=None, embed=sonuc_embed)
 
 
@@ -1224,7 +1079,6 @@ async def karaliste_sorgula(ctx, *, kullanici_adi: str = None):
 @bot.command(name='duyuru')
 async def duyuru(ctx):
     """Belirli bir kanala mesaj gönder"""
-    # Rol kontrolü
     if not any(str(role.id) == BOT_ROL_ID for role in ctx.author.roles):
         await ctx.reply('❌ Bu komutu kullanmak için Bot rolüne sahip olmalısınız!')
         return
@@ -1236,17 +1090,14 @@ async def duyuru(ctx):
 @bot.command(name='egitimduyuru')
 async def egitimduyuru(ctx, host: str = None, co: str = None, saat: str = None):
     """Eğitim duyurusu gönder"""
-    # Rol kontrolü
     if not any(str(role.id) == SUBAY_ROL_ID for role in ctx.author.roles):
         await ctx.reply('❌ Bu komutu kullanmak için gerekli role sahip değilsiniz!')
         return
 
-    # Kanal kontrolü
     if str(ctx.channel.id) != EGITIM_KANAL_ID:
         await ctx.reply(f'❌ Bu komutu sadece <#{EGITIM_KANAL_ID}> kanalında kullanabilirsiniz!')
         return
 
-    # Cooldown kontrolü
     cooldown_key = f'{ctx.author.id}-egitimduyuru'
     son_kullanim = cooldowns.get(cooldown_key)
     simdiki_zaman = datetime.now()
@@ -1275,17 +1126,14 @@ async def egitimduyuru(ctx, host: str = None, co: str = None, saat: str = None):
 @bot.command(name='bransalim')
 async def bransalim(ctx, host: str = None, co: str = None, brans: str = None, saat: str = None):
     """Branş alım duyurusu gönder"""
-    # Rol kontrolü
     if not any(str(role.id) == SUBAY_ROL_ID for role in ctx.author.roles):
         await ctx.reply('❌ Bu komutu kullanmak için gerekli role sahip değilsiniz!')
         return
 
-    # Kanal kontrolü
     if str(ctx.channel.id) != BRANS_KANAL_ID:
         await ctx.reply(f'❌ Bu komutu sadece <#{BRANS_KANAL_ID}> kanalında kullanabilirsiniz!')
         return
 
-    # Cooldown kontrolü
     cooldown_key = f'{ctx.author.id}-bransalim'
     son_kullanim = cooldowns.get(cooldown_key)
     simdiki_zaman = datetime.now()
@@ -1305,7 +1153,6 @@ async def bransalim(ctx, host: str = None, co: str = None, brans: str = None, sa
     except Exception as e:
         print(f'Mesaj silinemedi: {e}')
 
-    # Şartlar sorusunu sor
     soru_mesaji = await ctx.send(f'{ctx.author.mention} 📋 Şartlar olacak mı? Varsa şartları yazın, yoksa "hayır" veya "yok" yazın:')
 
     bekleyen_kullanicilar[ctx.author.id] = {
@@ -1324,22 +1171,19 @@ async def bransalim(ctx, host: str = None, co: str = None, brans: str = None, sa
 
 @bot.command(name='cooldownkaldir')
 async def cooldownkaldir(ctx, komut: str = None):
-    """Tüm kullanıcıların cooldown'unu kaldır (Sadece Bot rolü)"""
-    # Rol kontrolü
+    """Tüm kullanıcıların cooldown'unu kaldır"""
     if not any(str(role.id) == BOT_ROL_ID for role in ctx.author.roles):
         await ctx.reply('❌ Bu komutu kullanmak için Bot rolüne sahip olmalısınız!')
         return
     
     if not komut:
-        await ctx.reply('❌ Kullanım: `!cooldownkaldir egitimduyuru/bransalim`\nÖrnek: `!cooldownkaldir egitimduyuru`')
+        await ctx.reply('❌ Kullanım: `!cooldownkaldir egitimduyuru/bransalim`')
         return
     
-    # Komut kontrolü
     if komut not in ['egitimduyuru', 'bransalim']:
         await ctx.reply('❌ Geçersiz komut! Sadece `egitimduyuru` veya `bransalim` kullanabilirsiniz.')
         return
     
-    # İlgili komutu içeren tüm cooldown'ları kaldır
     silinecek_keyler = [key for key in cooldowns.keys() if key.endswith(f'-{komut}')]
     silinen_sayi = len(silinecek_keyler)
     
@@ -1352,25 +1196,15 @@ async def cooldownkaldir(ctx, komut: str = None):
         await ctx.reply(f'ℹ️ `!{komut}` komutu için aktif cooldown bulunamadı.')
 
 # ════════════════════════════════════════════════════════════════
-# PART 3 SONU - PART 4'e devam edecek...
+# PART 3 SONU
 # ════════════════════════════════════════════════════════════════
 """
 ════════════════════════════════════════════════════════════════
-ROBLOX AKTİFLİK TAKİP & YÖNETİM + DUYURU DISCORD BOTU
-PART 4/4: SAVAŞ SİSTEMİ & BOT BAŞLATMA
+PART 4/4: SAVAŞ SİSTEMİ, EK KOMUTLAR & BOT BAŞLATMA
 ════════════════════════════════════════════════════════════════
-Bu dosya:
-    - !savas - Savaş duyurusu
-    - !durum - Savaş durumu
-    - !dur - Savaşı duraklat
-    - !devam - Savaşa devam
-    - !iptal - Savaşı iptal et
-    - !ping - Bot gecikmesi
-    - Bot başlatma kodu
+Bu dosyayı Part 3'ün sonuna ekleyin
 ════════════════════════════════════════════════════════════════
 """
-
-# NOT: Bu dosya Part 1, 2 ve 3'ün devamıdır.
 
 # ═══════════════════════════════════════════════════════════════
 # KOMUTLAR - SAVAŞ SİSTEMİ
@@ -1379,12 +1213,10 @@ Bu dosya:
 @bot.command(name='savas')
 async def savas(ctx):
     """Aktif üyelere savaş duyurusu gönder"""
-    # Rol kontrolü
     if not any(str(role.id) == BOT_ROL_ID for role in ctx.author.roles):
         await ctx.reply('❌ Bu komutu kullanmak için Bot rolüne sahip olmalısınız!')
         return
 
-    # Zaten aktif bir savaş duyurusu varsa
     if savas_durumu['aktif']:
         await ctx.reply('⚠️ Zaten aktif bir savaş duyurusu var! `!durum` ile kontrol edebilirsiniz.')
         return
@@ -1394,7 +1226,6 @@ async def savas(ctx):
     except Exception as e:
         print(f'Mesaj silinemedi: {e}')
 
-    # Durumu sıfırla ve başlat
     savas_durumu['aktif'] = True
     savas_durumu['duraklatildi'] = False
     savas_durumu['basarili'] = 0
@@ -1402,43 +1233,24 @@ async def savas(ctx):
     savas_durumu['simdiki'] = 0
     savas_durumu['kanal'] = ctx.channel
 
-    # İlk bilgilendirme mesajı
     status_msg = await ctx.send('⚔️ Savaş duyurusu gönderiliyor... Subaylara DM atılıyor!')
 
-    # Subay kontrolü için ayarlar
-    OFFICER_GROUP_ID = 6702531  # Subay kontrolü yapılacak grup ID
-    MIN_OFFICER_RANK = 10  # Mülazım ı sani ve üstü (rank 10+)
-    
-    # Aktif subayları bul (Grup 6702531'de rank 10+ olan + bot değil + online)
     aktif_uyeler = []
+    
     for member in ctx.guild.members:
-        # Bot kontrolü ve Discord durumu kontrolü
         if member.bot or member.status not in [discord.Status.online, discord.Status.idle, discord.Status.dnd]:
             continue
         
-        # Veritabanından Roblox ID'sini bul
         player_data, _ = oyuncu_bul(member.name)
         
         if player_data:
             roblox_user_id = player_data.get('roblox_id')
+            
             if roblox_user_id:
-                try:
-                    # Roblox gruplarını kontrol et
-                    url = f"https://groups.roblox.com/v1/users/{roblox_user_id}/groups/roles"
-                    async with aiohttp.ClientSession() as session:
-                        async with session.get(url) as response:
-                            if response.status == 200:
-                                data = await response.json()
-                                for group in data.get('data', []):
-                                    # Eğer belirtilen grupta rank 10+ ise subay say
-                                    if group['group']['id'] == OFFICER_GROUP_ID:
-                                        rank = group['role']['rank']
-                                        if rank >= MIN_OFFICER_RANK:
-                                            aktif_uyeler.append(member)
-                                            break
-                except Exception as e:
-                    print(f'Subay kontrolü hatası ({member.name}): {e}')
-                    continue
+                is_officer, rank, rank_name = await subay_mi_kontrol(roblox_user_id)
+                
+                if is_officer:
+                    aktif_uyeler.append(member)
     
     savas_durumu['toplam'] = len(aktif_uyeler)
     
@@ -1447,14 +1259,11 @@ async def savas(ctx):
         savas_durumu['aktif'] = False
         return
 
-    # Her üyeye mesaj gönder
     for index, member in enumerate(aktif_uyeler, 1):
-        # İptal kontrolü
         if not savas_durumu['aktif']:
             await ctx.send('❌ Savaş duyurusu iptal edildi!')
             return
 
-        # Duraklatma kontrolü
         while savas_durumu['duraklatildi']:
             await asyncio.sleep(1)
             if not savas_durumu['aktif']:
@@ -1470,7 +1279,6 @@ async def savas(ctx):
             savas_durumu['basarisiz'] += 1
             print(f'DM gönderilemedi ({member.name}): {e}')
 
-        # Her 10 kişide bir status güncelle
         if index % 10 == 0 or index == len(aktif_uyeler):
             try:
                 await status_msg.edit(
@@ -1481,10 +1289,8 @@ async def savas(ctx):
             except:
                 pass
 
-        # Rate limit için kısa bekleme
         await asyncio.sleep(0.5)
 
-    # İşlem tamamlandı
     savas_durumu['aktif'] = False
     savas_durumu['duraklatildi'] = False
     
@@ -1498,7 +1304,6 @@ async def savas(ctx):
 @bot.command(name='durum')
 async def durum(ctx):
     """Savaş duyurusu durumunu göster"""
-    # Rol kontrolü
     if not any(str(role.id) == BOT_ROL_ID for role in ctx.author.roles):
         await ctx.reply('❌ Bu komutu kullanmak için Bot rolüne sahip olmalısınız!')
         return
@@ -1522,7 +1327,6 @@ async def durum(ctx):
 @bot.command(name='dur')
 async def dur(ctx):
     """Savaş duyurusunu duraklat"""
-    # Rol kontrolü
     if not any(str(role.id) == BOT_ROL_ID for role in ctx.author.roles):
         await ctx.reply('❌ Bu komutu kullanmak için Bot rolüne sahip olmalısınız!')
         return
@@ -1542,7 +1346,6 @@ async def dur(ctx):
 @bot.command(name='devam')
 async def devam(ctx):
     """Duraklatılmış savaş duyurusunu devam ettir"""
-    # Rol kontrolü
     if not any(str(role.id) == BOT_ROL_ID for role in ctx.author.roles):
         await ctx.reply('❌ Bu komutu kullanmak için Bot rolüne sahip olmalısınız!')
         return
@@ -1562,7 +1365,6 @@ async def devam(ctx):
 @bot.command(name='iptal')
 async def iptal(ctx):
     """Savaş duyurusunu tamamen iptal et"""
-    # Rol kontrolü
     if not any(str(role.id) == BOT_ROL_ID for role in ctx.author.roles):
         await ctx.reply('❌ Bu komutu kullanmak için Bot rolüne sahip olmalısınız!')
         return
@@ -1571,7 +1373,6 @@ async def iptal(ctx):
         await ctx.send('ℹ️ Şu anda aktif bir savaş duyurusu yok.')
         return
 
-    # İptal et
     savas_durumu['aktif'] = False
     savas_durumu['duraklatildi'] = False
     
@@ -1582,7 +1383,7 @@ async def iptal(ctx):
     )
 
 # ═══════════════════════════════════════════════════════════════
-# KOMUTLAR - DİĞER
+# KOMUTLAR - DİĞER & EK FONKSİYONLAR
 # ═══════════════════════════════════════════════════════════════
 
 @bot.command(name='ping')
@@ -1606,47 +1407,33 @@ async def ping(ctx):
     
     await ctx.send(embed=embed)
 
-# ═══════════════════════════════════════════════════════════════
-# KOMUTLAR - OTOMATİK AKTİFLİK SORGULAMA
-# ═══════════════════════════════════════════════════════════════
 
 @bot.command(name='aktiflik-sorgula')
 async def aktiflik_sorgula(ctx, roblox_username: str):
-    """
-    Bir oyuncunun Roblox aktifliğini otomatik olarak sorgula
-    
-    Kullanım: !aktiflik-sorgula RobloxKullaniciAdi
-    """
-    # Yetki kontrolü
+    """Bir oyuncunun Roblox aktifliğini otomatik olarak sorgula"""
     if not yetki_kontrol(ctx):
         await ctx.reply('❌ Bu komutu kullanmak için yetkiniz yok!')
         return
     
     await ctx.reply(f'🔍 {roblox_username} kullanıcısının aktifliği sorgulanıyor...')
     
-    # Roblox ID'sini al
     user_id = await roblox_kullanici_id_al(roblox_username)
     
     if not user_id:
         await ctx.reply(f'❌ Roblox kullanıcısı bulunamadı: {roblox_username}')
         return
     
-    # Haftalık aktifliği al
     success_weekly, weekly_data = await roblox_haftalik_aktiflik_al(user_id)
     success_total, total_data = await roblox_toplam_aktiflik_al(user_id)
     
     if not success_weekly or not success_total:
-        await ctx.reply(f'❌ Aktiflik verileri alınamadı!\nHaftalık: {weekly_data}\nToplam: {total_data}')
+        await ctx.reply(f'❌ Aktiflik verileri alınamadı!')
         return
     
-    # Saniyeyi saat-dakikaya çevir
     weekly_hours = weekly_data // 3600
     weekly_minutes = (weekly_data % 3600) // 60
-    
     total_hours = total_data // 3600
     total_minutes = (total_data % 3600) // 60
-    
-    # Renk belirle
     renk_emoji = renk_bul(weekly_hours)
     
     embed = discord.Embed(
@@ -1667,12 +1454,7 @@ async def aktiflik_sorgula(ctx, roblox_username: str):
         inline=True
     )
     
-    embed.add_field(
-        name="🔗 Roblox ID",
-        value=f"`{user_id}`",
-        inline=False
-    )
-    
+    embed.add_field(name="🔗 Roblox ID", value=f"`{user_id}`", inline=False)
     embed.set_footer(text=f"Sorgu: {ctx.author.name}")
     
     await ctx.reply(embed=embed)
@@ -1680,19 +1462,13 @@ async def aktiflik_sorgula(ctx, roblox_username: str):
 
 @bot.command(name='haftalik-rapor')
 async def haftalik_rapor(ctx):
-    """
-    Tüm kayıtlı subayların haftalık aktiflik raporunu oluştur
-    
-    Kullanım: !haftalik-rapor
-    """
-    # Yetki kontrolü
+    """Tüm kayıtlı subayların haftalık aktiflik raporunu oluştur"""
     if not yetki_kontrol(ctx):
         await ctx.reply('❌ Bu komutu kullanmak için yetkiniz yok!')
         return
     
-    await ctx.reply('📊 Haftalık aktiflik raporu hazırlanıyor... (Bu biraz zaman alabilir)')
+    await ctx.reply('📊 Haftalık aktiflik raporu hazırlanıyor...')
     
-    # Veritabanından tüm oyuncuları al
     db = veritabani_yukle()
     players = db.get('players', [])
     
@@ -1700,7 +1476,6 @@ async def haftalik_rapor(ctx):
         await ctx.reply('❌ Veritabanında kayıtlı oyuncu yok!')
         return
     
-    # Sadece subayları filtrele
     subay_listesi = []
     
     for player in players:
@@ -1710,28 +1485,28 @@ async def haftalik_rapor(ctx):
         if not roblox_id or not roblox_username:
             continue
         
-        # Rütbe kontrolü
-        mevcut_rutbe = await roblox_mevcut_rutbe_al(roblox_id)
+        is_officer, rank, rank_name = await subay_mi_kontrol(roblox_id)
         
-        if mevcut_rutbe in SUBAY_RUTBELERI:
+        if is_officer:
             subay_listesi.append({
                 'roblox_id': roblox_id,
                 'roblox_username': roblox_username,
-                'rutbe': mevcut_rutbe
+                'rutbe': rank_name,
+                'rank': rank
             })
+        
+        await asyncio.sleep(0.1)
     
     if not subay_listesi:
         await ctx.reply('❌ Subay bulunamadı!')
         return
     
-    # Aktiflik verilerini toplu al
     user_ids = [s['roblox_id'] for s in subay_listesi]
     aktiflik_verileri = await roblox_toplu_aktiflik_al(user_ids)
     
-    # Rapor oluştur
-    yesil_liste = []  # 7+ saat
-    sari_liste = []   # 5-7 saat
-    kirmizi_liste = [] # 5 saatten az
+    yesil_liste = []
+    sari_liste = []
+    kirmizi_liste = []
     
     for subay in subay_listesi:
         user_id = subay['roblox_id']
@@ -1755,15 +1530,13 @@ async def haftalik_rapor(ctx):
         else:
             kirmizi_liste.append(subay_data)
     
-    # Embed oluştur
     embed = discord.Embed(
         title="📊 HAFTALIK AKTİFLİK RAPORU",
-        description=f"Toplam Subay: **{len(subay_listesi)}**",
+        description=f"Toplam Subay: **{len(subay_listesi)}** (Grup {SUBAY_KONTROL_GRUP_ID}, Rank {SUBAY_MIN_RANK}+)",
         color=discord.Color.blue(),
         timestamp=datetime.now()
     )
     
-    # Yeşil liste
     if yesil_liste:
         yesil_text = "\n".join([
             f"🟢 **{s['username']}** ({s['rutbe']}) - {s['formatted']}"
@@ -1771,11 +1544,10 @@ async def haftalik_rapor(ctx):
         ])
         embed.add_field(
             name=f"🟢 Aktif ({len(yesil_liste)} kişi - 7+ saat)",
-            value=yesil_text[:1024],  # Discord limiti
+            value=yesil_text[:1024],
             inline=False
         )
     
-    # Sarı liste
     if sari_liste:
         sari_text = "\n".join([
             f"🟡 **{s['username']}** ({s['rutbe']}) - {s['formatted']}"
@@ -1787,7 +1559,6 @@ async def haftalik_rapor(ctx):
             inline=False
         )
     
-    # Kırmızı liste
     if kirmizi_liste:
         kirmizi_text = "\n".join([
             f"🔴 **{s['username']}** ({s['rutbe']}) - {s['formatted']}"
@@ -1799,19 +1570,13 @@ async def haftalik_rapor(ctx):
             inline=False
         )
     
-    embed.set_footer(text=f"Rapor oluşturan: {ctx.author.name}")
-    
+    embed.set_footer(text=f"Rapor: {ctx.author.name}")
     await ctx.reply(embed=embed)
 
 
 @bot.command(name='api-test')
 async def api_test(ctx):
-    """
-    Roblox API bağlantısını ve DataStore erişimini test et
-    
-    Kullanım: !api-test
-    """
-    # Sadece yetkili kullanabilir
+    """Roblox API bağlantısını ve DataStore erişimini test et"""
     if not yetki_kontrol(ctx):
         await ctx.reply('❌ Bu komutu kullanmak için yetkiniz yok!')
         return
@@ -1822,66 +1587,34 @@ async def api_test(ctx):
         timestamp=datetime.now()
     )
     
-    # Grup API Key kontrolü
     if not ROBLOX_API_KEY_GROUPS or ROBLOX_API_KEY_GROUPS == "YOUR_GROUP_API_KEY":
-        embed.add_field(
-            name="❌ Grup API Key",
-            value="API Key tanımlanmamış!",
-            inline=False
-        )
+        embed.add_field(name="❌ Grup API Key", value="API Key tanımlanmamış!", inline=False)
     else:
-        embed.add_field(
-            name="✅ Grup API Key",
-            value="Tanımlı (Rütbe, karaliste için)",
-            inline=False
-        )
+        embed.add_field(name="✅ Grup API Key", value="Tanımlı (Rütbe, karaliste için)", inline=False)
     
-    # DataStore API Key kontrolü
     if not ROBLOX_API_KEY_DATASTORE or ROBLOX_API_KEY_DATASTORE == "YOUR_DATASTORE_API_KEY":
-        embed.add_field(
-            name="❌ DataStore API Key",
-            value="API Key tanımlanmamış!",
-            inline=False
-        )
+        embed.add_field(name="❌ DataStore API Key", value="API Key tanımlanmamış!", inline=False)
     else:
-        embed.add_field(
-            name="✅ DataStore API Key",
-            value="Tanımlı (Aktiflik için)",
-            inline=False
-        )
+        embed.add_field(name="✅ DataStore API Key", value="Tanımlı (Aktiflik için)", inline=False)
     
-    # Universe ID kontrolü
     if not UNIVERSE_ID or UNIVERSE_ID == "YOUR_UNIVERSE_ID":
-        embed.add_field(
-            name="❌ Universe ID",
-            value="Universe ID tanımlanmamış!",
-            inline=False
-        )
+        embed.add_field(name="❌ Universe ID", value="Universe ID tanımlanmamış!", inline=False)
     else:
-        embed.add_field(
-            name="✅ Universe ID",
-            value=f"`{UNIVERSE_ID}`",
-            inline=False
-        )
+        embed.add_field(name="✅ Universe ID", value=f"`{UNIVERSE_ID}`", inline=False)
     
-    # Test kullanıcısı ile DataStore okuması
-    if (ROBLOX_API_KEY_DATASTORE != "YOUR_DATASTORE_API_KEY" and 
-        UNIVERSE_ID != "YOUR_UNIVERSE_ID"):
-        
-        success, data = await roblox_haftalik_aktiflik_al(1)  # Roblox'un kendi user ID'si
+    embed.add_field(
+        name="ℹ️ Subay Kontrolü",
+        value=f"Grup: **{SUBAY_KONTROL_GRUP_ID}** | Min Rank: **{SUBAY_MIN_RANK}+**",
+        inline=False
+    )
+    
+    if (ROBLOX_API_KEY_DATASTORE != "YOUR_DATASTORE_API_KEY" and UNIVERSE_ID != "YOUR_UNIVERSE_ID"):
+        success, data = await roblox_haftalik_aktiflik_al(1)
         
         if success:
-            embed.add_field(
-                name="✅ DataStore Erişimi",
-                value="DataStore'a başarıyla erişildi!",
-                inline=False
-            )
+            embed.add_field(name="✅ DataStore Erişimi", value="DataStore'a başarıyla erişildi!", inline=False)
         else:
-            embed.add_field(
-                name="❌ DataStore Erişimi",
-                value=f"Hata: {data}",
-                inline=False
-            )
+            embed.add_field(name="❌ DataStore Erişimi", value=f"Hata: {data}", inline=False)
     
     await ctx.reply(embed=embed)
 
@@ -1890,22 +1623,17 @@ async def api_test(ctx):
 # ═══════════════════════════════════════════════════════════════
 
 if __name__ == '__main__':
-    # Flask'ı ayrı thread'de başlat (UptimeRobot için)
     flask_thread = Thread(target=run_flask)
     flask_thread.daemon = True
     flask_thread.start()
     print('🌐 Flask sunucusu başlatıldı (Port: 8080)')
     
-    # Discord token'ını environment variable'dan al
     TOKEN = os.getenv('DISCORD_TOKEN')
     
     if not TOKEN:
         print('❌ HATA: DISCORD_TOKEN environment variable bulunamadı!')
-        print('💡 Token\'ı environment variable olarak ekleyin veya direkt yazın.')
+        print('💡 Token\'ı environment variable olarak ekleyin.')
         print('Örnek: export DISCORD_TOKEN="your_token_here"')
-        
-        # Alternatif olarak direkt token yazabilirsiniz (GÜVENLİK RİSKİ!)
-        # TOKEN = "BURAYA_BOT_TOKENINIZI_YAZIN"
         exit(1)
     
     try:
@@ -1913,82 +1641,49 @@ if __name__ == '__main__':
         bot.run(TOKEN)
     except Exception as e:
         print(f'❌ Bot başlatma hatası: {e}')
-        print('💡 Token\'ınızı kontrol edin ve bot izinlerini onaylayın.')
+        print('💡 Token\'ınızı kontrol edin.')
 
 # ════════════════════════════════════════════════════════════════
-# PART 4 SONU - TÜM PARTLAR TAMAMLANDI!
+# PART 4 SONU - TÜM KOD TAMAMLANDI!
 # ════════════════════════════════════════════════════════════════
 
 """
 ════════════════════════════════════════════════════════════════
-📚 KULLANIM TALİMATI:
+📦 KURULUM TALİMATI:
 
-Tüm 4 parçayı birleştirmek için:
-
-1. Tüm part dosyalarını oku
-2. Her dosyadaki "@bot.command" decorator'lü fonksiyonları kopyala
-3. Part 1'deki yapılandırma ve import'ları al
-4. Part 4'teki bot başlatma kodunu kullan
+1. Tüm 4 part dosyasını indirin
+2. Bir metin editörü açın (VSCode, Notepad++ vs.)
+3. Part 1'i açın ve kopyalayın
+4. Part 2'yi açın ve Part 1'in SONUNA ekleyin
+5. Part 3'ü açın ve Part 2'nin SONUNA ekleyin
+6. Part 4'ü açın ve Part 3'ün SONUNA ekleyin
+7. Dosyayı "discord_bot.py" olarak kaydedin
 
 VEYA
 
-Tek bir dosya oluştur ve şu sırayla yapıştır:
-- Part 1: Import'lar, yapılandırma, veritabanı, yardımcı fonksiyonlar
-- Part 2: Aktiflik komutları
-- Part 3: Rütbe, karaliste, duyuru komutları
-- Part 4: Savaş sistemi ve bot başlatma
+Terminal/CMD'de:
+cat bot_part1.py bot_part2.py bot_part3.py bot_part4.py > discord_bot.py
 
 ════════════════════════════════════════════════════════════════
-🔧 YAPMANIZ GEREKENLER:
-
-Part 1'de:
-✅ YETKILI_ROL_IDS - Discord rol ID'lerinizi ekleyin
-✅ SUBAY_ROL_ID - Subay rol ID'sini ekleyin
-✅ BOT_ROL_ID - Bot yönetici rol ID'sini ekleyin
-✅ EGITIM_KANAL_ID - Eğitim kanalı ID'sini kontrol edin
-✅ BRANS_KANAL_ID - Branş kanalı ID'sini kontrol edin
-✅ ROBLOX_API_KEY - Roblox Open Cloud API key'inizi ekleyin
-✅ ROBLOX_GRUP_LISTESI - Grup ID'lerinizi ekleyin
-✅ RUTBE_LISTESI - Rütbelerinizi kontrol/düzenleyin
-
-Part 4'te (veya environment variable):
-✅ DISCORD_TOKEN - Bot token'ınızı ekleyin
-
-════════════════════════════════════════════════════════════════
-📦 GEREKLİ KÜTÜPHANELER:
+🔧 GEREKLİ KÜTÜPHANELER:
 
 pip install discord.py aiohttp flask
 
 ════════════════════════════════════════════════════════════════
-🚀 BOT ÖZELLİKLERİ:
+⚙️ YAPILANDIRMA:
 
-📊 AKTİFLİK TAKİP:
-- Roblox oyuncu aktifliklerini takip et
-- Haftalık raporlar
-- İzin yönetimi
+1. YETKILI_ROL_IDS - Discord rol ID'lerinizi ekleyin
+2. SUBAY_ROL_ID - Subay rol ID
+3. BOT_ROL_ID - Bot yönetici rol ID
+4. ROBLOX_API_KEY_GROUPS - Grup işlemleri için API key
+5. ROBLOX_API_KEY_DATASTORE - Aktiflik için API key
+6. UNIVERSE_ID - Oyun Universe ID
+7. DISCORD_TOKEN - Environment variable veya dosyaya ekleyin
 
-⭐ RÜTBE YÖNETİMİ:
-- Otomatik rütbe değiştirme
-- Tasfiye sistemi
+════════════════════════════════════════════════════════════════
+🚀 ÇALIŞTIRMA:
 
-🚫 KARALİSTE:
-- Multi-sunucu ban
-- Roblox grup çıkarma
-- Karaliste veritabanı
-
-📢 DUYURU SİSTEMİ:
-- Eğitim duyuruları
-- Branş alım duyuruları
-- Cooldown sistemi
-
-⚔️ SAVAŞ SİSTEMİ:
-- Toplu DM gönderimi
-- Duraklatma/devam sistemi
-- İlerleme takibi
-
-🌐 UPTIME:
-- Flask health check
-- UptimeRobot entegrasyonu
+python discord_bot.py
 
 ════════════════════════════════════════════════════════════════
 """
