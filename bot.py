@@ -190,13 +190,10 @@ async def roblox_rutbe_degistir(user_id, rank_id, group_id):
     NOT: Grup sahibi olmadan da çalışır, sadece yeterli yetkiniz olması lazım
     """
     
-    # Önce CSRF token al
     async with aiohttp.ClientSession() as session:
         # 1. CSRF Token Al
         csrf_url = "https://auth.roblox.com/v2/logout"
-        headers = {
-            "Cookie": f".ROBLOSECURITY={ROBLOX_COOKIE}"
-        }
+        headers = {"Cookie": f".ROBLOSECURITY={ROBLOX_COOKIE}"}
         
         csrf_token = None
         async with session.post(csrf_url, headers=headers) as response:
@@ -205,14 +202,34 @@ async def roblox_rutbe_degistir(user_id, rank_id, group_id):
         if not csrf_token:
             return False, "CSRF token alınamadı! Cookie'nizi kontrol edin."
         
-        # 2. Rütbe Değiştir
+        # 2. Gruptaki rolleri al ve rank_id'ye karşılık gelen role ID'yi bul
+        roles_url = f"https://groups.roblox.com/v1/groups/{group_id}/roles"
+        async with session.get(roles_url) as response:
+            if response.status != 200:
+                return False, f"Grup rolleri alınamadı (Status: {response.status})"
+            
+            roles_data = await response.json()
+            roles = roles_data.get('roles', [])
+            
+            # Rank numarasına göre role ID bul
+            role_id = None
+            for role in roles:
+                if role.get('rank') == rank_id:
+                    role_id = role.get('id')
+                    break
+            
+            if not role_id:
+                available_ranks = ", ".join([str(r.get('rank')) for r in roles])
+                return False, f"Grup {group_id}'de Rank {rank_id} bulunamadı! Mevcut ranklar: {available_ranks}"
+        
+        # 3. Rütbe Değiştir (roleId kullan, rank değil!)
         url = f"https://groups.roblox.com/v1/groups/{group_id}/users/{user_id}"
         headers = {
             "Cookie": f".ROBLOSECURITY={ROBLOX_COOKIE}",
             "X-CSRF-TOKEN": csrf_token,
             "Content-Type": "application/json"
         }
-        payload = {"roleId": int(rank_id)}
+        payload = {"roleId": role_id}  # rank_id değil, role_id!
         
         async with session.patch(url, headers=headers, json=payload) as response:
             if response.status == 200:
@@ -846,24 +863,48 @@ Bu dosyayı Part 2'nin sonuna ekleyin
 # ═══════════════════════════════════════════════════════════════
 
 @bot.command(name='tasfiye')
-async def tasfiye(ctx, roblox_username: str = None, *, yeni_rutbe: str = None):
-    """Oyuncunun rütbesini değiştir (TÜM GRUPLARDA) - Veritabanı gerekmez"""
+async def tasfiye(ctx, grup_veya_hepsi: str = None, roblox_username: str = None, rank_id: str = None):
+    """
+    Oyuncunun rütbesini değiştir - Rank ID ile
+    Kullanım: !tasfiye <grup_id veya 'hepsi'> <roblox_isim> <rank_numarası>
+    Örnek: !tasfiye 6702531 EmirVonDietricyan 2
+    Örnek: !tasfiye hepsi EmirVonDietricyan 2
+    """
     if not yetki_kontrol(ctx):
         await ctx.send("❌ Bu komutu kullanma yetkiniz yok!")
         return
     
-    if not roblox_username or not yeni_rutbe:
+    if not grup_veya_hepsi or not roblox_username or not rank_id:
         await ctx.send(
-            "❌ Kullanım: `!tasfiye <roblox_isim> <yeni_rutbe>`\n"
-            "Örnek: `!tasfiye MehmetSubay Er`"
+            "❌ **Kullanım:** `!tasfiye <grup_id veya 'hepsi'> <roblox_isim> <rank_numarası>`\n\n"
+            "**Örnekler:**\n"
+            "• `!tasfiye 6702531 EmirVonDietricyan 2` - Sadece bir grupta\n"
+            "• `!tasfiye hepsi EmirVonDietricyan 2` - Tüm gruplarda\n\n"
+            "**Rank numaraları grupta ne ise o olmalı** (2=Er, 3=Onbaşı vs.)"
         )
         return
     
-    if yeni_rutbe not in RUTBE_LISTESI:
-        await ctx.send(f"❌ Geçersiz rütbe! Kullanılabilir rütbeleri görmek için `!rutbeler` yazın.")
+    # Rank ID'yi sayıya çevir
+    try:
+        rank_id = int(rank_id)
+    except:
+        await ctx.send("❌ Rank numarası geçerli bir sayı olmalı!")
         return
     
-    # ✅ DEĞİŞİKLİK: Veritabanına bakmadan direkt Roblox'tan ID alıyoruz
+    # Grup ID'yi belirle
+    if grup_veya_hepsi.lower() == "hepsi":
+        grup_listesi = ROBLOX_GRUP_LISTESI
+        islem_tipi = "TÜM GRUPLARDA"
+    else:
+        try:
+            grup_id = int(grup_veya_hepsi)
+            grup_listesi = [grup_id]
+            islem_tipi = f"GRUP {grup_id}'de"
+        except:
+            await ctx.send("❌ Grup ID geçerli bir sayı olmalı veya 'hepsi' yazın!")
+            return
+    
+    # Roblox kullanıcı ID'sini al
     islem_mesaji = await ctx.send(f"⏳ `{roblox_username}` için Roblox bilgileri çekiliyor...")
     
     roblox_user_id = await roblox_kullanici_id_al(roblox_username)
@@ -873,45 +914,75 @@ async def tasfiye(ctx, roblox_username: str = None, *, yeni_rutbe: str = None):
         return
     
     eski_rutbe = await roblox_mevcut_rutbe_al(roblox_user_id)
-    await islem_mesaji.edit(content=f"⏳ `{roblox_username}` için tasfiye işlemi başlatıldı...")
+    await islem_mesaji.edit(content=f"⏳ `{roblox_username}` için {islem_tipi} rütbe değiştirme başlatıldı...")
     
-    basarili = False
-    mesaj = ""
+    basarili_gruplar = []
+    basarisiz_gruplar = []
     
-    for group_id in ROBLOX_GRUP_LISTESI:
-        rank_id = RUTBE_LISTESI[yeni_rutbe]
+    for group_id in grup_listesi:
         basarili, mesaj = await roblox_rutbe_degistir(roblox_user_id, rank_id, group_id)
+        
         if basarili:
-            break
+            basarili_gruplar.append(group_id)
+        else:
+            basarisiz_gruplar.append((group_id, mesaj))
+        
+        await asyncio.sleep(0.5)  # Rate limit için bekle
     
-    if not basarili:
-        await islem_mesaji.edit(content=f"❌ Roblox'ta rütbe değiştirilemedi!\n{mesaj}")
-        return
+    # Sonuç embed'i oluştur
+    if basarili_gruplar:
+        embed = discord.Embed(
+            title="✅ RÜTBE DEĞİŞTİRME TAMAMLANDI",
+            description=f"**{roblox_username}** için rütbe değiştirildi.",
+            color=discord.Color.green(),
+            timestamp=datetime.now()
+        )
+        
+        embed.add_field(
+            name="👤 Oyuncu Bilgileri",
+            value=f"**Roblox:** {roblox_username}\n**User ID:** {roblox_user_id}\n**Eski Rütbe:** {eski_rutbe}",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="⭐ Yeni Rank",
+            value=f"**Rank ID:** {rank_id}",
+            inline=False
+        )
+        
+        if len(basarili_gruplar) > 0:
+            gruplar_text = "\n".join([f"• Grup {g}" for g in basarili_gruplar])
+            embed.add_field(
+                name=f"✅ Başarılı ({len(basarili_gruplar)} grup)",
+                value=gruplar_text[:1024],
+                inline=False
+            )
+        
+        if basarisiz_gruplar:
+            hatalar_text = "\n".join([f"• Grup {g}: {m[:50]}..." for g, m in basarisiz_gruplar[:5]])
+            embed.add_field(
+                name=f"❌ Başarısız ({len(basarisiz_gruplar)} grup)",
+                value=hatalar_text[:1024],
+                inline=False
+            )
+        
+        embed.set_footer(text=f"İşlemi yapan: {ctx.author.name}")
+        
+        await islem_mesaji.delete()
+        await ctx.send(embed=embed)
+    else:
+        hata_mesaji = "❌ Hiçbir grupta rütbe değiştirilemedi!\n\n"
+        for g, m in basarisiz_gruplar[:3]:
+            hata_mesaji += f"**Grup {g}:** {m}\n"
+        
+        await islem_mesaji.edit(content=hata_mesaji)
     
-    # ✅ DEĞİŞİKLİK: Veritabanındaysa güncelle, yoksa sorun yok
+    # Veritabanındaysa güncelle
     player, index = oyuncu_bul(roblox_username)
     if player and index is not None:
         db = veritabani_yukle()
-        db['players'][index]['rank'] = yeni_rutbe
+        db['players'][index]['rank'] = f"Rank {rank_id}"
         veritabani_kaydet(db)
-    
-    embed = discord.Embed(
-        title="✅ TASFİYE İŞLEMİ TAMAMLANDI",
-        description=f"**{roblox_username}** başarıyla tasfiye edildi.",
-        color=discord.Color.green(),
-        timestamp=datetime.now()
-    )
-    
-    embed.add_field(
-        name="⭐ Rütbe Değişikliği",
-        value=f"**Eski Rütbe:** {eski_rutbe}\n**Yeni Rütbe:** {yeni_rutbe}",
-        inline=False
-    )
-    
-    embed.set_footer(text=f"İşlemi yapan: {ctx.author.name}")
-    
-    await islem_mesaji.delete()
-    await ctx.send(embed=embed)
 
 
 @bot.command(name='rutbeler')
@@ -1618,7 +1689,7 @@ async def api_test(ctx):
     if not ROBLOX_API_KEY_GROUPS or ROBLOX_API_KEY_GROUPS == "YOUR_GROUP_API_KEY":
         embed.add_field(name="❌ Grup API Key", value="API Key tanımlanmamış!", inline=False)
     else:
-        embed.add_field(name="✅ Grup API Key", value="Tanımlı (Rütbe, karaliste için)", inline=False)
+        embed.add_field(name="✅ Grup API Key", value="Tanımlı (Artık kullanılmıyor)", inline=False)
     
     if not ROBLOX_API_KEY_DATASTORE or ROBLOX_API_KEY_DATASTORE == "YOUR_DATASTORE_API_KEY":
         embed.add_field(name="❌ DataStore API Key", value="API Key tanımlanmamış!", inline=False)
@@ -1629,6 +1700,52 @@ async def api_test(ctx):
         embed.add_field(name="❌ Universe ID", value="Universe ID tanımlanmamış!", inline=False)
     else:
         embed.add_field(name="✅ Universe ID", value=f"`{UNIVERSE_ID}`", inline=False)
+    
+    # 🆕 COOKIE TESTİ
+    if not ROBLOX_COOKIE or ROBLOX_COOKIE == "YOUR_ROBLOSECURITY_COOKIE":
+        embed.add_field(name="❌ Roblox Cookie", value="Cookie tanımlanmamış!", inline=False)
+    else:
+        cookie_len = len(ROBLOX_COOKIE)
+        
+        # CSRF token test et
+        try:
+            async with aiohttp.ClientSession() as session:
+                csrf_url = "https://auth.roblox.com/v2/logout"
+                headers = {"Cookie": f".ROBLOSECURITY={ROBLOX_COOKIE}"}
+                
+                async with session.post(csrf_url, headers=headers) as response:
+                    csrf_token = response.headers.get('x-csrf-token')
+                    
+                    if csrf_token:
+                        # Kullanıcı bilgilerini al
+                        user_url = "https://users.roblox.com/v1/users/authenticated"
+                        async with session.get(user_url, headers=headers) as user_response:
+                            if user_response.status == 200:
+                                user_data = await user_response.json()
+                                username = user_data.get('name', 'Bilinmiyor')
+                                embed.add_field(
+                                    name="✅ Roblox Cookie",
+                                    value=f"Geçerli! (Uzunluk: {cookie_len})\nGiriş yapılan hesap: **{username}**",
+                                    inline=False
+                                )
+                            else:
+                                embed.add_field(
+                                    name="⚠️ Roblox Cookie",
+                                    value=f"CSRF token alındı ama kullanıcı bilgisi alınamadı\nStatus: {user_response.status}",
+                                    inline=False
+                                )
+                    else:
+                        embed.add_field(
+                            name="❌ Roblox Cookie",
+                            value=f"Cookie geçersiz! (Uzunluk: {cookie_len})\nCSRF token alınamadı.\nÇözüm: Yeni cookie alın",
+                            inline=False
+                        )
+        except Exception as e:
+            embed.add_field(
+                name="❌ Roblox Cookie Test Hatası",
+                value=f"Hata: {str(e)}",
+                inline=False
+            )
     
     embed.add_field(
         name="ℹ️ Subay Kontrolü",
