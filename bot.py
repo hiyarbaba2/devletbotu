@@ -58,8 +58,8 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Discord Yetki Ayarları
 YETKILI_ROL_IDS = [
-    1234567890,  # Örnek: Kurmay Rolü ID
-    9876543210,  # Örnek: Yönetici Rolü ID
+    1264591330298826813,  # Örnek: Kurmay Rolü ID
+    1461342472528465975 ,  # Örnek: Yönetici Rolü ID
 ]
 
 # Duyuru Bot Rolleri
@@ -73,16 +73,33 @@ BRANS_KANAL_ID = '1128667321351815218'
 # Roblox API Ayarları
 ROBLOX_API_KEY = "YOUR_ROBLOX_OPEN_CLOUD_API_KEY"
 ROBLOX_GRUP_LISTESI = [
-    12345678,  # Ana grup ID
-    87654321,  # İkinci grup ID
+    5836656,  # Ana grup ID
+    35855814,  # İkinci grup ID
+    35856866,  # İkinci grup ID
+    17163069,  # İkinci grup ID
+    6702531,  # İkinci grup ID
+    34055753,  # İkinci grup ID
+    32774293,  # İkinci grup ID
+    15222875,  # İkinci grup ID
+    7426468,  # İkinci grup ID
+    14014034,  # İkinci grup ID
+    33709489,  # İkinci grup ID
+    15872878,  # İkinci grup ID
+    17163024,  # İkinci grup ID
+    32753497,  # İkinci grup ID
+    17167854,  # İkinci grup ID
+    17264057,  # İkinci grup ID
 ]
 
 # Rütbe Listesi
 RUTBE_LISTESI = {
-    "Er": 1,
-    "Onbaşı": 2,
-    "Çavuş": 3,
-    "Üsteğmen": 20,
+    "Acemi": 2,
+    "Nefer": 3,
+    "Nefer Birinci Sınıf": 4,
+    "Onbaşı": 5,
+    "Çavuş": 6,
+    "Nefer Birinci Sınıf": 4,
+    "Üstçavuş": 7,
     "Yüzbaşı": 25,
     "Binbaşı": 30,
     "Yarbay": 35,
@@ -102,7 +119,7 @@ SUBAY_RUTBELERI = [
 ]
 
 # Log Kanalı
-LOG_CHANNEL_ID = None  # Örnek: 1234567890
+LOG_CHANNEL_ID = 1461362885337813004  # Örnek: 1234567890
 
 # ═══════════════════════════════════════════════════════════════
 # GLOBAL DEĞİŞKENLER (Duyuru sistemi için)
