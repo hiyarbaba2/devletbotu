@@ -819,7 +819,7 @@ Bu dosyayı Part 2'nin sonuna ekleyin
 
 @bot.command(name='tasfiye')
 async def tasfiye(ctx, roblox_username: str = None, *, yeni_rutbe: str = None):
-    """Oyuncunun rütbesini değiştir (TÜM GRUPLARDA)"""
+    """Oyuncunun rütbesini değiştir (TÜM GRUPLARDA) - Veritabanı gerekmez"""
     if not yetki_kontrol(ctx):
         await ctx.send("❌ Bu komutu kullanma yetkiniz yok!")
         return
@@ -835,20 +835,17 @@ async def tasfiye(ctx, roblox_username: str = None, *, yeni_rutbe: str = None):
         await ctx.send(f"❌ Geçersiz rütbe! Kullanılabilir rütbeleri görmek için `!rutbeler` yazın.")
         return
     
-    player, index = oyuncu_bul(roblox_username)
-    
-    if not player:
-        await ctx.send(f"❌ `{roblox_username}` adlı oyuncu bulunamadı!")
-        return
+    # ✅ DEĞİŞİKLİK: Veritabanına bakmadan direkt Roblox'tan ID alıyoruz
+    islem_mesaji = await ctx.send(f"⏳ `{roblox_username}` için Roblox bilgileri çekiliyor...")
     
     roblox_user_id = await roblox_kullanici_id_al(roblox_username)
     
     if not roblox_user_id:
-        await ctx.send(f"❌ `{roblox_username}` için Roblox ID bulunamadı!")
+        await islem_mesaji.edit(content=f"❌ `{roblox_username}` adlı oyuncu Roblox'ta bulunamadı!")
         return
     
     eski_rutbe = await roblox_mevcut_rutbe_al(roblox_user_id)
-    islem_mesaji = await ctx.send(f"⏳ `{roblox_username}` için tasfiye işlemi başlatıldı...")
+    await islem_mesaji.edit(content=f"⏳ `{roblox_username}` için tasfiye işlemi başlatıldı...")
     
     basarili = False
     mesaj = ""
@@ -863,9 +860,12 @@ async def tasfiye(ctx, roblox_username: str = None, *, yeni_rutbe: str = None):
         await islem_mesaji.edit(content=f"❌ Roblox'ta rütbe değiştirilemedi!\n{mesaj}")
         return
     
-    db = veritabani_yukle()
-    db['players'][index]['rank'] = yeni_rutbe
-    veritabani_kaydet(db)
+    # ✅ DEĞİŞİKLİK: Veritabanındaysa güncelle, yoksa sorun yok
+    player, index = oyuncu_bul(roblox_username)
+    if player and index is not None:
+        db = veritabani_yukle()
+        db['players'][index]['rank'] = yeni_rutbe
+        veritabani_kaydet(db)
     
     embed = discord.Embed(
         title="✅ TASFİYE İŞLEMİ TAMAMLANDI",
