@@ -70,6 +70,7 @@ BRANS_KANAL_ID = '1128667321351815218'
 ROBLOX_API_KEY_GROUPS = os.getenv('ROBLOX_API_KEY_GROUPS', 'YOUR_GROUP_API_KEY')
 ROBLOX_API_KEY_DATASTORE = os.getenv('ROBLOX_API_KEY_DATASTORE', 'YOUR_DATASTORE_API_KEY')
 UNIVERSE_ID = os.getenv('UNIVERSE_ID', 'YOUR_UNIVERSE_ID')
+ROBLOX_COOKIE = os.getenv('ROBLOX_COOKIE', 'YOUR_ROBLOSECURITY_COOKIE')  # ✅ YENİ: Legacy API için
 
 ROBLOX_GRUP_LISTESI = [
     5836656, 35855814, 35856866, 17163069, 6702531,
@@ -180,20 +181,39 @@ async def roblox_kullanici_id_al(username):
                     return data['data'][0]['id']
     return None
 
+# Roblox Cookie (Legacy API için gerekli - Grup sahibi olmasanız da çalışır)
+ROBLOX_COOKIE = os.getenv('ROBLOX_COOKIE', 'YOUR_ROBLOSECURITY_COOKIE')
+
 async def roblox_rutbe_degistir(user_id, rank_id, group_id):
-    # ✅ DÜZELTİLDİ: Roblox Cloud API v2 doğru formatı
-    url = f"https://apis.roblox.com/cloud/v2/groups/{group_id}/memberships/{user_id}:update"
-    headers = {"x-api-key": ROBLOX_API_KEY_GROUPS, "Content-Type": "application/json"}
+    """
+    Legacy Groups API kullanarak rütbe değiştir
+    NOT: Grup sahibi olmadan da çalışır, sadece yeterli yetkiniz olması lazım
+    """
     
-    # ✅ DÜZELTİLDİ: Doğru payload formatı (roleId ve path)
-    payload = {
-        "membership": {
-            "path": f"groups/{group_id}/memberships/{user_id}",
-            "roleId": str(rank_id)  # roleId string olmalı
-        }
-    }
-    
+    # Önce CSRF token al
     async with aiohttp.ClientSession() as session:
+        # 1. CSRF Token Al
+        csrf_url = "https://auth.roblox.com/v2/logout"
+        headers = {
+            "Cookie": f".ROBLOSECURITY={ROBLOX_COOKIE}"
+        }
+        
+        csrf_token = None
+        async with session.post(csrf_url, headers=headers) as response:
+            csrf_token = response.headers.get('x-csrf-token')
+        
+        if not csrf_token:
+            return False, "CSRF token alınamadı! Cookie'nizi kontrol edin."
+        
+        # 2. Rütbe Değiştir
+        url = f"https://groups.roblox.com/v1/groups/{group_id}/users/{user_id}"
+        headers = {
+            "Cookie": f".ROBLOSECURITY={ROBLOX_COOKIE}",
+            "X-CSRF-TOKEN": csrf_token,
+            "Content-Type": "application/json"
+        }
+        payload = {"roleId": int(rank_id)}
+        
         async with session.patch(url, headers=headers, json=payload) as response:
             if response.status == 200:
                 return True, "Başarılı"
