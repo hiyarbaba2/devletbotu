@@ -562,6 +562,19 @@ async def komutlar_listesi(ctx):
         ),
         inline=False
     )
+
+    embed.add_field(
+        name="📨 DM Gönderimi",
+        value=(
+            "**`!dmgonder aktif`** - Online/idle/dnd olan herkese DM at\n"
+            "**`!dmgonder herkes`** - Tüm üyelere DM at\n"
+            "**`!dmgonder rol @Rol`** - Belirli role sahip herkese DM at\n"
+            "**`!dmdur`** - DM gönderimini duraklat\n"
+            "**`!dmdevam`** - DM gönderimini devam ettir\n"
+            "**`!dmiptal`** - Devam eden DM gönderimini iptal et"
+        ),
+        inline=False
+    )
     
     embed.add_field(
         name="🔧 Diğer",
@@ -1293,6 +1306,302 @@ async def cooldownkaldir(ctx, komut: str = None):
         await ctx.reply(f'✅ `!{komut}` komutu için toplam {silinen_sayi} kullanıcının cooldown\'u kaldırıldı!')
     else:
         await ctx.reply(f'ℹ️ `!{komut}` komutu için aktif cooldown bulunamadı.')
+
+# ═══════════════════════════════════════════════════════════════
+# KOMUT - DM GÖNDER
+# ═══════════════════════════════════════════════════════════════
+
+# DM gönder durumu
+dm_gonder_durumu = {
+    'aktif': False, 'duraklatildi': False, 'basarili': 0,
+    'basarisiz': 0, 'toplam': 0, 'simdiki': 0
+}
+
+@bot.command(name='dmgonder')
+async def dm_gonder(ctx, hedef: str = None):
+    """
+    Belirtilen kişilere DM gönder.
+    Kullanım:
+      !dmgonder aktif       → Discord'da online/idle/dnd olan herkes
+      !dmgonder herkes      → Sunucudaki tüm üyeler (botlar hariç)
+      !dmgonder rol @Rol    → Belirli bir role sahip herkes
+    Komutu yazdıktan sonra mesajınızı yazın, bot DM olarak iletecek.
+    """
+    if not yetki_kontrol(ctx):
+        await ctx.reply('❌ Bu komutu kullanma yetkiniz yok!')
+        return
+
+    if dm_gonder_durumu['aktif']:
+        await ctx.reply('⚠️ Zaten aktif bir DM gönderimi var! Bitmesini bekleyin.')
+        return
+
+    if not hedef:
+        await ctx.reply(
+            '❌ Kullanım:\n'
+            '`!dmgonder aktif` → Online/idle/dnd olan herkes\n'
+            '`!dmgonder herkes` → Tüm üyeler\n'
+            '`!dmgonder rol @RolAdı` → Belirli role sahip herkes'
+        )
+        return
+
+    # Hedef belirleme
+    hedef_listesi = []
+
+    if hedef.lower() == 'aktif':
+        hedef_listesi = [
+            m for m in ctx.guild.members
+            if not m.bot and m.status in [
+                discord.Status.online,
+                discord.Status.idle,
+                discord.Status.dnd
+            ]
+        ]
+        hedef_tanim = '🟢 Online/Idle/DND olan üyeler'
+
+    elif hedef.lower() == 'herkes':
+        hedef_listesi = [m for m in ctx.guild.members if not m.bot]
+        hedef_tanim = '👥 Tüm sunucu üyeleri'
+
+    elif hedef.lower() == 'rol':
+        # Rol mention kontrolü
+        if not ctx.message.role_mentions:
+            await ctx.reply('❌ Rol belirtmediniz! Örnek: `!dmgonder rol @Subay`')
+            return
+        rol = ctx.message.role_mentions[0]
+        hedef_listesi = [m for m in rol.members if not m.bot]
+        hedef_tanim = f'🎖️ {rol.name} rolündeki üyeler'
+
+    else:
+        await ctx.reply(
+            '❌ Geçersiz hedef!\n'
+            'Kullanım: `aktif`, `herkes` veya `rol @RolAdı`'
+        )
+        return
+
+    if not hedef_listesi:
+        await ctx.reply('⚠️ Belirtilen kriterlere uygun üye bulunamadı!')
+        return
+
+    # Mesajı bekle
+    bilgi_embed = discord.Embed(
+        title='📨 DM GÖNDERİMİ - MESAJ BEKLENİYOR',
+        description=(
+            f'**Hedef:** {hedef_tanim}\n'
+            f'**Kişi Sayısı:** {len(hedef_listesi)}\n\n'
+            f'📝 **Göndermek istediğiniz mesajı yazın.**\n'
+            f'İptal etmek için `iptal` yazın.'
+        ),
+        color=discord.Color.blue(),
+        timestamp=datetime.now()
+    )
+    bilgi_embed.set_footer(text=f'Komutu veren: {ctx.author.name}')
+    await ctx.reply(embed=bilgi_embed)
+
+    # Mesajı al
+    def mesaj_check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+
+    try:
+        cevap = await bot.wait_for('message', timeout=120.0, check=mesaj_check)
+    except asyncio.TimeoutError:
+        await ctx.send('⏱️ 2 dakika içinde mesaj yazılmadı, işlem iptal edildi.')
+        return
+
+    if cevap.content.lower() == 'iptal':
+        await ctx.send('❌ DM gönderimi iptal edildi.')
+        return
+
+    mesaj_icerik = cevap.content
+
+    # Onay al
+    onay_embed = discord.Embed(
+        title='⚠️ ONAY GEREKLİ',
+        description=(
+            f'**Hedef:** {hedef_tanim}\n'
+            f'**Kişi Sayısı:** {len(hedef_listesi)}\n\n'
+            f'**Gönderilecek Mesaj:**\n```\n{mesaj_icerik[:900]}\n```\n\n'
+            f'✅ Onaylamak için reaksiyona tıklayın.\n'
+            f'❌ İptal etmek için reaksiyona tıklayın.'
+        ),
+        color=discord.Color.orange(),
+        timestamp=datetime.now()
+    )
+    onay_mesaji = await ctx.send(embed=onay_embed)
+    await onay_mesaji.add_reaction('✅')
+    await onay_mesaji.add_reaction('❌')
+
+    def reaksiyon_check(reaction, user):
+        return (
+            user == ctx.author
+            and str(reaction.emoji) in ['✅', '❌']
+            and reaction.message.id == onay_mesaji.id
+        )
+
+    try:
+        reaction, _ = await bot.wait_for('reaction_add', timeout=30.0, check=reaksiyon_check)
+    except asyncio.TimeoutError:
+        await onay_mesaji.edit(embed=discord.Embed(
+            title='⏱️ Zaman Aşımı',
+            description='İşlem iptal edildi.',
+            color=discord.Color.orange()
+        ))
+        await onay_mesaji.clear_reactions()
+        return
+
+    await onay_mesaji.clear_reactions()
+
+    if str(reaction.emoji) == '❌':
+        await onay_mesaji.edit(embed=discord.Embed(
+            title='❌ İptal Edildi',
+            description='DM gönderimi iptal edildi.',
+            color=discord.Color.red()
+        ))
+        return
+
+    # Gönderim başlat
+    dm_gonder_durumu['aktif'] = True
+    dm_gonder_durumu['duraklatildi'] = False
+    dm_gonder_durumu['basarili'] = 0
+    dm_gonder_durumu['basarisiz'] = 0
+    dm_gonder_durumu['toplam'] = len(hedef_listesi)
+    dm_gonder_durumu['simdiki'] = 0
+
+    ilerleme_mesaji = await ctx.send(
+        f'📨 DM gönderimi başlatıldı...\n'
+        f'👥 Toplam: {len(hedef_listesi)} kişi'
+    )
+
+    for index, member in enumerate(hedef_listesi, 1):
+        if not dm_gonder_durumu['aktif']:
+            try:
+                await ilerleme_mesaji.edit(
+                    content=(
+                        f'❌ DM gönderimi iptal edildi!\n'
+                        f'📊 İlerleme: {index - 1}/{len(hedef_listesi)}\n'
+                        f'✅ Başarılı: {dm_gonder_durumu["basarili"]} '
+                        f'| ❌ Başarısız: {dm_gonder_durumu["basarisiz"]}'
+                    )
+                )
+            except:
+                pass
+            return
+
+        while dm_gonder_durumu['duraklatildi']:
+            await asyncio.sleep(1)
+            if not dm_gonder_durumu['aktif']:
+                try:
+                    await ilerleme_mesaji.edit(
+                        content=(
+                            f'❌ DM gönderimi iptal edildi!\n'
+                            f'📊 İlerleme: {index - 1}/{len(hedef_listesi)}\n'
+                            f'✅ Başarılı: {dm_gonder_durumu["basarili"]} '
+                            f'| ❌ Başarısız: {dm_gonder_durumu["basarisiz"]}'
+                        )
+                    )
+                except:
+                    pass
+                return
+
+        dm_gonder_durumu['simdiki'] = index
+
+        try:
+            await member.send(mesaj_icerik)
+            dm_gonder_durumu['basarili'] += 1
+        except Exception as e:
+            dm_gonder_durumu['basarisiz'] += 1
+            print(f'DM gönderilemedi ({member.name}): {e}')
+
+        if index % 10 == 0 or index == len(hedef_listesi):
+            try:
+                await ilerleme_mesaji.edit(
+                    content=(
+                        f'📨 DM gönderimi devam ediyor...\n'
+                        f'📊 İlerleme: {index}/{len(hedef_listesi)}\n'
+                        f'✅ Başarılı: {dm_gonder_durumu["basarili"]} '
+                        f'| ❌ Başarısız: {dm_gonder_durumu["basarisiz"]}'
+                    )
+                )
+            except:
+                pass
+
+        await asyncio.sleep(0.5)
+
+    dm_gonder_durumu['aktif'] = False
+    dm_gonder_durumu['duraklatildi'] = False
+
+    sonuc_embed = discord.Embed(
+        title='✅ DM GÖNDERİMİ TAMAMLANDI',
+        color=discord.Color.green(),
+        timestamp=datetime.now()
+    )
+    sonuc_embed.add_field(name='👥 Toplam Hedef', value=str(dm_gonder_durumu['toplam']), inline=True)
+    sonuc_embed.add_field(name='✅ Başarılı', value=str(dm_gonder_durumu['basarili']), inline=True)
+    sonuc_embed.add_field(name='❌ Başarısız', value=str(dm_gonder_durumu['basarisiz']), inline=True)
+    sonuc_embed.set_footer(text=f'İşlemi yapan: {ctx.author.name}')
+    await ctx.send(embed=sonuc_embed)
+
+
+@bot.command(name='dmiptal')
+async def dm_iptal(ctx):
+    """Devam eden DM gönderimini iptal et"""
+    if not yetki_kontrol(ctx):
+        await ctx.reply('❌ Bu komutu kullanma yetkiniz yok!')
+        return
+
+    if not dm_gonder_durumu['aktif']:
+        await ctx.reply('ℹ️ Şu anda aktif bir DM gönderimi yok.')
+        return
+
+    dm_gonder_durumu['aktif'] = False
+    dm_gonder_durumu['duraklatildi'] = False
+    await ctx.reply(
+        f'❌ DM gönderimi iptal edildi!\n'
+        f'📊 {dm_gonder_durumu["simdiki"]}/{dm_gonder_durumu["toplam"]} kişiye ulaşıldı.\n'
+        f'✅ Başarılı: {dm_gonder_durumu["basarili"]} | ❌ Başarısız: {dm_gonder_durumu["basarisiz"]}'
+    )
+
+
+@bot.command(name='dmdur')
+async def dm_dur(ctx):
+    """Devam eden DM gönderimini duraklat"""
+    if not yetki_kontrol(ctx):
+        await ctx.reply('❌ Bu komutu kullanma yetkiniz yok!')
+        return
+
+    if not dm_gonder_durumu['aktif']:
+        await ctx.reply('ℹ️ Şu anda aktif bir DM gönderimi yok.')
+        return
+
+    if dm_gonder_durumu['duraklatildi']:
+        await ctx.reply('⚠️ DM gönderimi zaten duraklatılmış! `!dmdevam` ile devam edebilirsiniz.')
+        return
+
+    dm_gonder_durumu['duraklatildi'] = True
+    await ctx.reply(
+        f'⏸️ DM gönderimi duraklatıldı!\n'
+        f'📊 İlerleme: {dm_gonder_durumu["simdiki"]}/{dm_gonder_durumu["toplam"]}\n'
+        f'`!dmdevam` yazarak devam edebilirsiniz.'
+    )
+
+
+@bot.command(name='dmdevam')
+async def dm_devam(ctx):
+    """Duraklatılmış DM gönderimini devam ettir"""
+    if not yetki_kontrol(ctx):
+        await ctx.reply('❌ Bu komutu kullanma yetkiniz yok!')
+        return
+
+    if not dm_gonder_durumu['aktif']:
+        await ctx.reply('ℹ️ Şu anda aktif bir DM gönderimi yok.')
+        return
+
+    if not dm_gonder_durumu['duraklatildi']:
+        await ctx.reply('⚠️ DM gönderimi zaten devam ediyor!')
+        return
+
+    dm_gonder_durumu['duraklatildi'] = False
+    await ctx.reply('▶️ DM gönderimi devam ediyor!')
+
 
 # ════════════════════════════════════════════════════════════════
 # PART 3 SONU
