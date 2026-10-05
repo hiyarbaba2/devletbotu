@@ -54,8 +54,8 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Discord Yetki Ayarları
 YETKILI_ROL_IDS = [
-    1264591330298826813,  # Örnek: Kurmay Rolü ID
-    1461342472528465975,  # Örnek: Yönetici Rolü ID
+    1551222919219118190,  # Örnek: Kurmay Rolü ID
+    1531224825933205784,  # Örnek: Yönetici Rolü ID
 ]
 
 # Duyuru Bot Rolleri
@@ -79,7 +79,7 @@ ROBLOX_GRUP_LISTESI = [
 ]
 
 # ✅ YENİ: Subay Kontrolü İçin Özel Grup Ayarları
-SUBAY_KONTROL_GRUP_ID = 6702531  # Sadece bu grupta subay kontrolü yapılacak
+SUBAY_KONTROL_GRUP_ID = 591862114  # Sadece bu grupta subay kontrolü yapılacak
 SUBAY_MIN_RANK = 10  # Mülazım-ı Sani ve üstü (rank 10+)
 
 # Rütbe Listesi
@@ -99,7 +99,7 @@ SUBAY_RUTBELERI = [
     "Kaymakam", "Miralay", "Mirliva", "Ferik", "Ağa", "Müşir", "Serasker"
 ]
 
-LOG_CHANNEL_ID = 1461362885337813004
+LOG_CHANNEL_ID = 1556730376045600998
 
 # ═══════════════════════════════════════════════════════════════
 # GLOBAL DEĞİŞKENLER
