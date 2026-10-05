@@ -55,7 +55,7 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 # Discord Yetki Ayarları
 YETKILI_ROL_IDS = [
     1551222919219118190,  # Örnek: Kurmay Rolü ID
-    1531224825933205784,  # Örnek: Yönetici Rolü ID
+    1556732572036497611,  # Örnek: Yönetici Rolü ID
 ]
 
 # Duyuru Bot Rolleri
